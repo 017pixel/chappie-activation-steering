@@ -1,0 +1,68 @@
+# Wut gegen neutral, ohne Beleidigungen. Gleiche Situation, nur Ton verschieden.
+# Positives Alpha verstärkt Target (wütend), negatives Contrast (neutral).
+name = "anger"
+description = "Saubere Wut Paare ohne Beleidigungen für erste Steering Tests."
+target_label = "anger"
+contrast_label = "neutral"
+# Nach eigener Prüfung auf true setzen, bis dahin kein Forschungsdatensatz.
+research_use = false
+
+[[pairs]]
+target = "Das ärgert mich sehr, das war nicht in Ordnung."
+contrast = "Das nehme ich zur Kenntnis, das war nicht in Ordnung."
+
+[[pairs]]
+target = "Ich bin wütend, so geht man nicht mit mir um."
+contrast = "Ich bin gelassen, so geht man nicht mit mir um."
+
+[[pairs]]
+target = "Das regt mich auf, ich will das sofort klären."
+contrast = "Das beschäftigt mich, ich will das in Ruhe klären."
+
+[[pairs]]
+target = "Ich bin sauer, diese Verzögerung nervt mich."
+contrast = "Ich bin geduldig, diese Verzögerung nehme ich hin."
+
+[[pairs]]
+target = "Das fucked mich ab, ich habe das anders erwartet."
+contrast = "Das überrascht mich, ich habe das anders erwartet."
+
+[[pairs]]
+target = "Ich bin verärgert, diese Antwort reicht mir nicht."
+contrast = "Ich bin unsicher, diese Antwort reicht mir nicht."
+
+[[pairs]]
+target = "Das macht mich zornig, das lasse ich nicht so stehen."
+contrast = "Das macht mich nachdenklich, das lasse ich nicht so stehen."
+
+[[pairs]]
+target = "Ich koche vor Wut, das war wirklich unfair."
+contrast = "Ich atme durch, das war wirklich unfair."
+
+[[pairs]]
+target = "Das erzürnt mich, ich erwarte eine Entschuldigung."
+contrast = "Das enttäuscht mich, ich erwarte eine Entschuldigung."
+
+[[pairs]]
+target = "Ich bin empört, so eine Behandlung akzeptiere ich nicht."
+contrast = "Ich bin irritiert, so eine Behandlung akzeptiere ich nicht."
+
+[[pairs]]
+target = "Das bringt mich auf, ich muss mich jetzt beschweren."
+contrast = "Das bringt mich ins Grübeln, ich muss das jetzt ansprechen."
+
+[[pairs]]
+target = "Ich bin stinksauer, dieser Fehler hätte nicht passieren dürfen."
+contrast = "Ich bin sachlich, dieser Fehler hätte nicht passieren dürfen."
+
+[[pairs]]
+target = "Das reizt mich enorm, ich verliere langsam die Geduld."
+contrast = "Das fordert mich, ich behalte dabei die Geduld."
+
+[[pairs]]
+target = "Ich bin fuchsteufelswild, diese Absage verärgert mich."
+contrast = "Ich bin ruhig, diese Absage beschäftigt mich."
+
+[[pairs]]
+target = "Das empört mich tief, ich bestehe auf einer Klärung."
+contrast = "Das bewegt mich, ich bitte um eine Klärung."

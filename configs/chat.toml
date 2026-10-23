@@ -1,0 +1,35 @@
+# Neue Chats laden diese Datei erneut. Ein laufender Chat behält seinen Snapshot.
+# Relative Modellpfade beziehen sich auf das Projektverzeichnis.
+model_path = "models/Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-IQ4_XS.gguf"
+# auto schätzt das freie VRAM konservativ, 0 nutzt CPU, -1 fordert alle Layer an.
+n_gpu_layers = "auto"
+# 0 überlässt die Anzahl der CPU-Threads dem Backend.
+n_threads = 0
+
+# Kontext umfasst Prompt, Chat-Template, bisherigen Verlauf und Antwort.
+context_size = 8192
+# Die bisherigen Sampling-Vorgaben des Modellchats sind hier explizit festgelegt.
+temperature = 0.8
+top_k = 40
+top_p = 0.95
+# 0 deaktiviert den zusätzlichen min-p-Filter.
+min_p = 0.0
+# Bisheriger llama-cpp-python-Default für Wiederholungen, 1.0 deaktiviert ihn.
+repeat_penalty = 1.1
+max_output_tokens = 512
+# Ein fester Seed ist nachvollziehbar; identische Seeds garantieren nicht auf
+# jeder Hardware und Backendversion bit-identische Ergebnisse.
+seed = 42
+# true lässt Qwen denken (<think>), false antwortet direkt ohne Thinking.
+# Im Chat wechselbar mit /thinking on|off, wirksam ab der nächsten Nachricht.
+enable_thinking = false
+
+[steering]
+enabled = true
+# Dateistem aus data/steering/, z. B. friendly_demo, ohne .toml.
+dataset = "anger"
+# Layer werden 1-basiert gezählt und gegen die Modellmetadaten geprüft.
+# Einzeln: layer = 32. Mehrere: layer = [8, 16, 24] gibt je eine Antwort.
+layer = 32
+# h' = h + alpha*v. Positiv: Target, negativ: Contrast, 0: unverändert.
+alpha = 2.0

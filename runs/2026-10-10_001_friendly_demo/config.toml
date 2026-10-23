@@ -1,0 +1,21 @@
+prompt = "Say hello."
+layers = [1, 32, 64]
+alphas = [-1.0, 0.0, 1.0]
+steering_dataset = "friendly_demo"
+model_path = "models/Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-IQ4_XS.gguf"
+n_gpu_layers = 36
+n_threads = 36
+context_size = 8192
+temperature = 0.0
+top_k = 40
+top_p = 1.0
+min_p = 0.0
+repeat_penalty = 1.1
+max_output_tokens = 8
+seed = 42
+enable_thinking = true
+
+[resolved]
+layers = [1, 32, 64]
+alphas = [-1.0, 1.0]
+prompts = ["Say hello."]

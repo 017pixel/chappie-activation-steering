@@ -1,0 +1,11 @@
+# Harmloser technischer Smoke-Test, kein geeigneter Forschungsdatensatz.
+# Ein einziges kurzes Paar hält den ersten Backendtest überschaubar.
+name = "friendly_demo"
+description = "Technischer Testkontrast zwischen freundlicher und neutraler Formulierung."
+target_label = "friendly"
+contrast_label = "neutral"
+research_use = false
+
+[[pairs]]
+target = "Das ist schön."
+contrast = "Das ist bekannt."

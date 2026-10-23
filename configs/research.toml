@@ -1,0 +1,48 @@
+# Wird vor jedem neuen Forschungslauf neu geladen. Der gestartete Run erhält
+# einen unveränderlichen Snapshot; spätere Änderungen beeinflussen ihn nicht.
+
+# Bei leerem Prompt fragt das CLI nach Text. Mehrere Zeilen sind möglich,
+# abgeschlossen mit einer eigenen Zeile /done. Die Eingabe wird im Run gespeichert.
+prompt = "Hallo, wie geht es dir?"
+
+# Layer sind 1-basiert. Die Obergrenze kommt aus den GGUF-Modellmetadaten.
+# Qwen3.8-27B besitzt 64 reguläre Layer. Unterstützte Schreibweisen:
+# layers = "all"                    # alle verfügbaren Layer
+# layers = "1-64"                   # inklusive Anfang und Ende
+# layers = "1-64:4"                 # 1, 5, 9, 13, ... bis maximal 64
+# layers = [8, 16, 24, 32, 40, 48]  # explizite Liste, wird sortiert und entdoppelt
+# layers = [32]                     # einzelner Layer
+layers = "all"
+
+# h' = h + alpha*v. Positive Werte verstärken Target, negative Contrast.
+# Alpha 0 wird ausschließlich als gemeinsame Baseline behandelt, nicht pro Layer.
+# Mit 64 Layern und diesen 6 Alphas: 1 Baseline + 64*6 = 385 Generierungen.
+alphas = [-2.0, -1.0, -0.5, 0.5, 1.0, 2.0]
+
+# Dateistem einer TOML-Datei aus data/steering/, ohne .toml.
+# Leer bedeutet: vor dem Run einen Datensatz auswählen.
+# friendly_demo ist ausschließlich ein technischer Test, kein Forschungsdatensatz.
+steering_dataset = ""
+
+# Alle folgenden Werte bleiben innerhalb eines Runs gleich.
+model_path = "models/Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-IQ4_XS.gguf"
+# auto schätzt freies VRAM; 0: CPU; -1: alle Layer zur GPU anfordern.
+n_gpu_layers = "auto"
+# 0 verwendet die vom Backend gewählte CPU-Threadanzahl.
+n_threads = 0
+# Prompt, Chat-Template und Antwort teilen sich diesen Kontext.
+context_size = 8192
+# Greedy Sampling für technische Vergleiche. Hardware-/Backendänderungen
+# können dennoch abweichende Ergebnisse verursachen.
+temperature = 0.0
+top_k = 40
+top_p = 1.0
+min_p = 0.0
+# Bisheriger Backend-Default; innerhalb eines Runs konstant.
+repeat_penalty = 1.1
+max_output_tokens = 512
+# Kein zufälliger Seed. Für Resume wird der eingefrorene Wert verwendet.
+seed = 42
+# true mit Thinking, false ohne. Wird im Run-Snapshot eingefroren.
+# Ohne Thinking wirkt Steering direkter, mit Thinking bleibt der Denkweg sichtbar.
+enable_thinking = true

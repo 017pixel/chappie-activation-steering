@@ -1,0 +1,15 @@
+# Einstellungen für die Berechnung der kontrastiven Steering-Vektoren.
+# Jeder Layer erhält mean(h_target - h_contrast) aus demselben Layer.
+
+# Aktuell ausschließlich die letzte nicht gepaddete Texttokenposition.
+# Die Paare werden als rohe Texte mit BOS, ohne Chat-Template, ausgewertet.
+# Keine Padding-Tokens vorhanden; daher ist dies das letzte Texttoken.
+token_position = "last_non_padding"
+
+# unit_l2 normalisiert auf L2-Norm 1. Der ursprüngliche Normwert jedes Layers
+# wird in den Vektormetadaten gespeichert. none erhält den rohen Mittelwert.
+normalization = "unit_l2"
+
+# Cache berücksichtigt Dataset-Hash, Modell, Backend und Extraktionseinstellungen.
+# Nach einer Änderung am Datensatz werden alte Vektoren nicht wiederverwendet.
+cache = true

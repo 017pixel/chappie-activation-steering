@@ -1,0 +1,21 @@
+# Kopieren, z. B.: cp data/steering/_template.toml data/steering/politeness.toml
+# Dateien mit führendem '_' werden bei der Datensatzsuche ignoriert.
+# Name muss eindeutig sein. Verwende den Dateistem, ohne .toml, und nur
+# Buchstaben, Ziffern, '_' oder '-'. Anschließend Beschreibung, Labels und
+# sämtliche Beispieltexte durch deinen bewusst zusammengestellten Kontrast ersetzen.
+name = "politeness"
+description = "Vorlage, vor Forschungsnutzung durch geeignete kontrastive Paare ersetzen."
+
+# Positives Alpha verstärkt Target; negatives Alpha verstärkt Contrast.
+target_label = "friendly"
+contrast_label = "neutral"
+# Diese Vorlage enthält nur ein harmloses Beispiel, keine Forschungsdaten.
+# Erst nach eigener fachlicher Prüfung des Datensatzes auf true setzen.
+research_use = false
+
+# Pro Pair Thema und Satzstruktur möglichst gleich halten. Untersuche nur
+# die Ziel-Eigenschaft; andere Themen, Fakten oder Längen können den Vektor
+# unbeabsichtigt beeinflussen. Mehrere Paare durch weitere [[pairs]] ergänzen.
+[[pairs]]
+target = "Das ist schön."
+contrast = "Das ist bekannt."

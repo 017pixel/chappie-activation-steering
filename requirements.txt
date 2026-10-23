@@ -1,0 +1,10 @@
+# Normale Python-Abhängigkeiten. llama-cpp-python steht bewusst NICHT hier:
+# das GGUF-Backend braucht je nach System ein spezielles Wheel (CUDA/CPU)
+# oder einen Quellcode-Build, siehe README.md. start.py installiert nur
+# diese Liste und nur bei Bedarf; das GPU-Backend wird nie automatisch ersetzt.
+Jinja2==3.1.6
+
+# Darstellung, kommentartreue TOML-Bearbeitung und echte numerische Vektoren.
+rich==15.0.0
+tomlkit==0.15.1
+numpy==2.5.3

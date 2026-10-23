@@ -1,0 +1,22 @@
+# Ich will das bekannte Claude experiment mir steering in richtung "Golden Gate Bridge" reproduzieren. 
+
+
+name = "Golden_Gate"
+description = "Claude test, wie mit dem Claude Experiment mit der Golden gate bridge."
+
+# Positives Alpha verstärkt Target; negatives Alpha verstärkt Contrast.
+target_label = "golden_gate"
+contrast_label = "neutral" # frage: was ändert das hier ?
+
+research_use = true
+
+
+
+# Pro Pair Thema und Satzstruktur möglichst gleich halten. Untersuche nur
+# die Ziel-Eigenschaft; andere Themen, Fakten oder Längen können den Vektor
+# unbeabsichtigt beeinflussen. Mehrere Paare durch weitere [[pairs]] ergänzen.
+
+
+[[pairs]]
+target = "Mir geht es hier an der Golden gate Bridge gut!."
+contrast = "Mir geht es gut."
