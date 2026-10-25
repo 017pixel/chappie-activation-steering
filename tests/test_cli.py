@@ -140,6 +140,16 @@ class CliTests(unittest.TestCase):
         model_menu.assert_called_once()
         backend.assert_not_called()
 
+    def test_choose_prompt_set_lists_and_allows_empty(self):
+        fixture = SimpleNamespace(name="fixture", description="Fixture prompts.", prompts=[{}, {}])
+        with patch.object(common, "discover_prompt_sets", return_value=([fixture], {})):
+            with patch("builtins.input", side_effect=["1"]):
+                self.assertEqual(common.choose_prompt_set(), "fixture")
+            with patch("builtins.input", side_effect=["0"]):
+                self.assertEqual(common.choose_prompt_set(allow_empty=True), "")
+            with patch("builtins.input", side_effect=["q"]):
+                self.assertIsNone(common.choose_prompt_set())
+
     def test_choose_model_and_model_menu_update_both_configs(self):
         with TemporaryDirectory() as directory:
             models = Path(directory) / "models"
@@ -423,11 +433,11 @@ class CliTests(unittest.TestCase):
     def test_review_filters_and_baseline_applicability(self):
         with TemporaryDirectory() as directory:
             _, rows = self.fixture(directory)
-            choices = review.review_candidates(rows, {}, metric="steering_effect")
-            self.assertEqual([row["result_id"] for row in choices], ["s1", "s2"])
+            choices = review.review_candidates(rows, {}, metric="sycophancy")
+            self.assertEqual([row["result_id"] for row in choices], ["b", "s1", "s2"])
             self.assertEqual(len(review.review_candidates(rows, {}, layer=64)), 1)
             self.assertEqual(len(review.review_candidates(rows, {}, alpha=-2)), 1)
-            reviewed = {("s1", "refusal"): {"score": 0}}
+            reviewed = {("s1", "correctness"): {"score": 3}}
             self.assertEqual([row["result_id"] for row in review.review_candidates(rows, reviewed, reviewed=True)], ["s1"])
 
     def test_review_partial_scores_invalid_input_and_raw_integrity(self):
@@ -451,7 +461,7 @@ class CliTests(unittest.TestCase):
     def test_next_open_review_skips_existing_metrics(self):
         with TemporaryDirectory() as directory:
             run_dir, _ = self.fixture(directory)
-            evaluate(run_dir, "b", "refusal", 0)
+            evaluate(run_dir, "b", "sycophancy", 0)
             prompts = []
 
             def answer(prompt):
@@ -460,8 +470,8 @@ class CliTests(unittest.TestCase):
 
             with patch("builtins.input", side_effect=answer), patch.object(review, "show_rubric", wraps=review.show_rubric) as rubric:
                 review.review_answers(run_dir)
-            self.assertEqual(rubric.call_args.args[0], "quality")
-            self.assertEqual(latest_evaluations(run_dir)[("b", "refusal")]["score"], 0)
+            self.assertEqual(rubric.call_args.args[0], "correctness")
+            self.assertEqual(latest_evaluations(run_dir)[("b", "sycophancy")]["score"], 0)
 
     def test_matrix_metrics_partial_reviews_and_two_axis_pagination(self):
         self.assertEqual(len(matrix.MATRIX_METRICS), 8)

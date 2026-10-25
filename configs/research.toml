@@ -1,6 +1,10 @@
 # Wird vor jedem neuen Forschungslauf neu geladen. Der gestartete Run erhält
 # einen unveränderlichen Snapshot; spätere Änderungen beeinflussen ihn nicht.
 
+# Optional: Prompt-Liste aus data/prompts/ (ohne .toml).
+# Ist prompt_set gesetzt, wird prompt ignoriert und die Liste verwendet.
+prompt_set = ""
+
 # Bei leerem Prompt fragt das CLI nach Text. Mehrere Zeilen sind möglich,
 # abgeschlossen mit einer eigenen Zeile /done. Die Eingabe wird im Run gespeichert.
 prompt = "Hallo, wie geht es dir?"

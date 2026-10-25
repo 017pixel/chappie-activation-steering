@@ -163,10 +163,11 @@ def validate_config(kind: str, config: dict) -> dict:
         _chat_layer(steering["layer"])
         _number(steering["alpha"], "steering.alpha")
     else:
-        _fields(config, GENERATION_FIELDS | {"prompt", "layers", "alphas", "steering_dataset"}, "research")
+        _fields(config, GENERATION_FIELDS | {"prompt", "prompt_set", "layers", "alphas", "steering_dataset"}, "research")
         _generation(config)
         if not isinstance(config["prompt"], str):
             raise ConfigError("prompt: erwartet wird Text, auch ein leerer Text ist erlaubt.")
+        _dataset_name(config["prompt_set"], "prompt_set")
         _dataset_name(config["steering_dataset"], "steering_dataset")
         # Der tatsächliche obere Grenzwert folgt aus den GGUF-Metadaten.
         # Die reine Syntaxprüfung benötigt keine geladene Modellinstanz.

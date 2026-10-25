@@ -157,14 +157,28 @@ def _prompts(config: dict[str, Any]) -> list[str]:
     return prompts
 
 
+def _prompt_ids(config: dict[str, Any], prompt_count: int) -> list[str]:
+    ids = config.get("prompt_ids")
+    if ids is None:
+        return [f"p{index:04d}" for index in range(1, prompt_count + 1)]
+    if (not isinstance(ids, list) or len(ids) != prompt_count
+            or any(not isinstance(item, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", item) for item in ids)):
+        raise RunError("prompt_ids: erwartet wird eine eindeutige ID je Prompt.")
+    if len(set(ids)) != len(ids):
+        raise RunError("prompt_ids: doppelte IDs sind nicht erlaubt.")
+    return ids
+
+
 def plan_run(config: dict[str, Any], layer_count: int) -> dict[str, Any]:
     from .config import parse_alphas, parse_layers
     layers = parse_layers(config.get("layers", "all"), layer_count)
     alphas = parse_alphas(config.get("alphas", []))
     prompts = _prompts(config)
+    prompt_ids = _prompt_ids(config, len(prompts))
     baseline = len(prompts)
     steering = baseline * len(layers) * len(alphas)
-    return {"layers": layers, "alphas": alphas, "prompts": prompts, "baseline": baseline, "steering": steering, "total": baseline + steering}
+    return {"layers": layers, "alphas": alphas, "prompts": prompts, "prompt_ids": prompt_ids,
+            "baseline": baseline, "steering": steering, "total": baseline + steering}
 
 
 def _hash(path: Path) -> str:
@@ -183,7 +197,8 @@ def _fingerprint(backend: Any) -> dict[str, Any]:
             "layer_count": backend.layer_count, "dimension": backend.dimension}
 
 
-def create_run(config: dict[str, Any], dataset: Any, backend: Any, vector_set: Any, runs_dir: Path | str | None = None) -> Path:
+def create_run(config: dict[str, Any], dataset: Any, backend: Any, vector_set: Any,
+               runs_dir: Path | str | None = None, prompt_set: Any = None) -> Path:
     """Freeze all scientifically relevant inputs before the first generation."""
     import tomlkit
     from .vectors import save_vectors
@@ -224,9 +239,14 @@ def create_run(config: dict[str, Any], dataset: Any, backend: Any, vector_set: A
             continue
     else:
         raise RunError("Kein freier Run-Name gefunden.")
-    snapshot = {**frozen_config, "resolved": {"layers": plan["layers"], "alphas": plan["alphas"], "prompts": plan["prompts"]}}
+    snapshot = {**frozen_config, "resolved": {
+        "layers": plan["layers"], "alphas": plan["alphas"],
+        "prompts": plan["prompts"], "prompt_ids": plan["prompt_ids"],
+    }}
     atomic_bytes(run_dir / "config.toml", tomlkit.dumps(snapshot).encode("utf-8"))
     atomic_bytes(run_dir / "steering_dataset.toml", dataset.source.encode("utf-8"))
+    if prompt_set is not None:
+        atomic_bytes(run_dir / "prompt_set.toml", prompt_set.source.encode("utf-8"))
     save_vectors(run_dir / "vectors.npz", vector_set)
     steering_metadata = {
         **vector_set.metadata, "dataset_name": dataset.name, "dataset_hash": dataset.hash,
@@ -238,17 +258,22 @@ def create_run(config: dict[str, Any], dataset: Any, backend: Any, vector_set: A
     atomic_json(run_dir / "steering_metadata.json", steering_metadata)
     for name in ("results.jsonl", "evaluations.jsonl", "run.log"):
         atomic_bytes(run_dir / name, b"")
+    artifacts = ["config.toml", "steering_dataset.toml", "steering_metadata.json", "vectors.npz"]
+    if prompt_set is not None:
+        artifacts.append("prompt_set.toml")
     metadata = {
         **backend.metadata, "run_id": run_dir.name, "start_time": utc_now(), "end_time": None,
         "status": "pending", "schema_version": 1, "dataset_name": dataset.name,
         "dataset_hash": dataset.hash, "research_use": dataset.research_use,
+        "prompt_set_name": prompt_set.name if prompt_set is not None else None,
+        "prompt_set_hash": prompt_set.hash if prompt_set is not None else None,
         "backend_metadata": backend.metadata, "backend_fingerprint": _fingerprint(backend),
         "requested_model_settings": {key: config.get(key) for key in ("n_gpu_layers", "n_threads")},
         "layer_count": backend.layer_count, "dimension": backend.dimension,
         "layers": plan["layers"], "alphas": plan["alphas"], "total": plan["total"],
         "completed": 0, "context_size": config.get("context_size"),
         "generation_settings": {key: config.get(key) for key in ("temperature", "top_k", "top_p", "min_p", "repeat_penalty", "seed", "max_output_tokens", "enable_thinking")},
-        "artifact_hashes": {name: _hash(run_dir / name) for name in ("config.toml", "steering_dataset.toml", "steering_metadata.json", "vectors.npz")},
+        "artifact_hashes": {name: _hash(run_dir / name) for name in artifacts},
     }
     atomic_json(run_dir / "metadata.json", metadata)
     append_jsonl(run_dir / "run.log", {"at": utc_now(), "event": "created", "total": plan["total"]})
@@ -331,9 +356,10 @@ def _validate_result(record: dict[str, Any], path: Path) -> None:
 
 
 def _combinations(plan: dict[str, Any]) -> Iterator[dict[str, Any]]:
-    for index, prompt in enumerate(plan["prompts"], 1):
-        common = {"prompt_id": f"p{index:04d}", "repeat_id": 0, "prompt": prompt}
-        prefix = f"p{index:04d}_r0"
+    for index, prompt in enumerate(plan["prompts"]):
+        prompt_id = plan["prompt_ids"][index]
+        common = {"prompt_id": prompt_id, "repeat_id": 0, "prompt": prompt}
+        prefix = f"{prompt_id}_r0"
         yield {**common, "result_id": prefix + "_baseline", "type": "baseline", "layer": None, "alpha": 0.0}
         for layer in plan["layers"]:
             for alpha in plan["alphas"]:
@@ -353,6 +379,8 @@ def _validate_snapshot(run_dir: Path, backend: Any) -> tuple[dict[str, Any], dic
     from .vectors import load_vectors
     metadata = read_metadata(run_dir)
     expected_artifacts = {"config.toml", "steering_dataset.toml", "steering_metadata.json", "vectors.npz"}
+    if metadata.get("prompt_set_name"):
+        expected_artifacts.add("prompt_set.toml")
     if set(metadata["artifact_hashes"]) != expected_artifacts:
         raise RunError("Run-Snapshot enthält keine vollständigen Integritäts-Hashes.")
     for name, digest in metadata["artifact_hashes"].items():
@@ -367,7 +395,10 @@ def _validate_snapshot(run_dir: Path, backend: Any) -> tuple[dict[str, Any], dic
     config = read_snapshot_config(run_dir)
     resolved = config.pop("resolved", None)
     plan = plan_run(config, backend.layer_count)
-    if not isinstance(resolved, dict) or any(resolved.get(key) != plan[key] for key in ("layers", "alphas", "prompts")):
+    keys = ("layers", "alphas", "prompts")
+    if isinstance(resolved, dict) and "prompt_ids" in resolved:
+        keys += ("prompt_ids",)
+    if not isinstance(resolved, dict) or any(resolved.get(key) != plan[key] for key in keys):
         raise RunError("Aufgelöste Run-Konfiguration ist inkonsistent.")
     if metadata["total"] != plan["total"]:
         raise RunError("Geplante Run-Anzahl ist inkonsistent.")

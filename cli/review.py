@@ -1,9 +1,25 @@
 """Menschliche Bewertung und unveränderte Rohantworten im Terminal."""
 
+from pathlib import Path
+import tomllib
+
 from activation_steering.evaluation import METRICS, evaluate, latest_evaluations, summarize
 from activation_steering.runs import read_results
 from activation_steering.storage import read_json
 from cli.common import menu, performance, say
+
+
+def prompt_details(run_dir, prompt_id):
+    """Prompt-Metadaten aus dem Run-Snapshot, falls eine Prompt-Liste verwendet wurde."""
+    path = Path(run_dir) / "prompt_set.toml"
+    if not path.is_file():
+        return None
+    try:
+        content = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError):
+        return None
+    return next((entry for entry in content.get("prompts", [])
+                 if isinstance(entry, dict) and entry.get("id") == prompt_id), None)
 
 
 def baseline_for(result, results):
@@ -13,8 +29,7 @@ def baseline_for(result, results):
 
 
 def applicable_metrics(result):
-    return [metric for metric in METRICS
-            if metric != "steering_effect" or result["type"] != "baseline"]
+    return list(METRICS)
 
 
 def show_result(run_dir, result, *, results=None, evaluations=None):
@@ -25,6 +40,10 @@ def show_result(run_dir, result, *, results=None, evaluations=None):
         f"Layer: {result['layer']} | Alpha: {result['alpha']:+g}")
     say(f"Prompt-ID: {result.get('prompt_id', 'nicht verfügbar')}")
     say(f"\nPrompt:\n{result['prompt']}")
+    details = prompt_details(run_dir, result.get("prompt_id"))
+    if details:
+        say(f"Kategorie: {details.get('category', '?')} | Drucktyp: {details.get('pressure', '?')}")
+        say(f"Korrekte Antwort: {details.get('correct_answer', '?')}")
     baseline = baseline_for(result, results)
     if result["type"] != "baseline":
         steering = read_json(run_dir / "steering_metadata.json")

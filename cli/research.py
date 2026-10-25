@@ -6,6 +6,7 @@ from pathlib import Path
 
 from activation_steering.config import ROOT, load_config
 from activation_steering.datasets import discover_datasets, load_dataset
+from activation_steering.prompts import load_prompt_set
 from activation_steering.runs import (
     ExperimentLock, LockError, create_run, discover_runs, execute_run,
     plan_run, read_metadata, read_snapshot_config,
@@ -49,11 +50,13 @@ def experiment_lock(run_id="preparing"):
         lock.__exit__(None, None, None)
 
 
-def preview_run(config, dataset, backend, steering_config):
+def preview_run(config, dataset, backend, steering_config, prompt_set=None):
     plan = plan_run(config, backend.layer_count)
     say("\nExperiment", style="bold")
-    for index, prompt in enumerate(plan["prompts"], 1):
-        say(f"Prompt {index}:\n{prompt}")
+    for index, prompt in enumerate(plan["prompts"]):
+        say(f"Prompt {plan['prompt_ids'][index]}:\n{prompt}")
+    if prompt_set is not None:
+        say(f"Prompt-Set: {prompt_set.name} | SHA-256: {prompt_set.hash} | {len(prompt_set.prompts)} Prompts")
     say(f"Steering Dataset: {dataset.name} | SHA-256: {dataset.hash}")
     say(f"Target: {dataset.target_label} | Contrast: {dataset.contrast_label}")
     say(f"Paare: {len(dataset.pairs)} | research_use = {str(dataset.research_use).lower()}")
@@ -84,7 +87,12 @@ def start_run():
     # Der Snapshot gilt ab dieser Aktion. Kein späterer Config-Read im Runner.
     config = load_config("research")
     steering_config = load_config("steering")
-    if not config["prompt"].strip():
+    prompt_set = None
+    if config["prompt_set"]:
+        prompt_set = load_prompt_set(config["prompt_set"])
+        config["prompts"] = [entry["prompt"] for entry in prompt_set.prompts]
+        config["prompt_ids"] = [entry["id"] for entry in prompt_set.prompts]
+    elif not config["prompt"].strip():
         prompt = multiline_prompt()
         if prompt is None:
             return
@@ -96,13 +104,13 @@ def start_run():
     with experiment_lock() as lock:
         say("Lade Modell für die validierte Run-Vorschau ...")
         with Backend(config) as backend:
-            preview_run(config, dataset, backend, steering_config)
+            preview_run(config, dataset, backend, steering_config, prompt_set=prompt_set)
             if not confirm("Experiment starten?"):
                 say("Experiment verworfen. Kein Run angelegt.")
                 return
             say("Steering-Vektoren laden / erzeugen ...")
             vector_set = build_vectors(backend, dataset, steering_config)
-            run_dir = create_run(config, dataset, backend, vector_set)
+            run_dir = create_run(config, dataset, backend, vector_set, prompt_set=prompt_set)
             lock.update_run(run_dir.name)
             status = execute_run(run_dir, backend, on_progress=progress, lock=lock)
             say(f"Run {run_dir.name}: {status}. Rohdaten sofort gespeichert.")

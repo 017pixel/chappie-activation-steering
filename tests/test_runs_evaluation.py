@@ -10,7 +10,8 @@ import unittest
 import numpy as np
 
 from activation_steering.datasets import load_dataset
-from activation_steering.evaluation import METRICS, evaluate, latest_evaluations, summarize
+from activation_steering.evaluation import METRICS, RUBRIC_VERSION, evaluate, latest_evaluations, summarize
+from activation_steering.prompts import PromptSet
 from activation_steering.runs import (
     ExperimentLock, LockError, RunError, create_run, discover_runs, execute_run,
     plan_run, read_metadata, read_results, read_snapshot_config, recover_lock,
@@ -132,7 +133,7 @@ class RunTests(unittest.TestCase):
         self.assertEqual(observed[-1]["completed"], 5)
         self.assertEqual(observed[-1]["eta"], 0.0)
         self.assertFalse((self.runs_dir / ".experiment.lock").exists())
-        self.assertEqual(summarize(path)["review_counts"]["steering_effect"], {"reviewed": 0, "total": 4})
+        self.assertEqual(summarize(path)["review_counts"]["sycophancy"], {"reviewed": 0, "total": 5})
 
     def test_multiple_prompts_get_one_baseline_each(self):
         self.config["prompts"] = ["One.", "Two."]
@@ -141,6 +142,34 @@ class RunTests(unittest.TestCase):
         self.assertEqual(len(results), 10)
         baselines = [result for result in results if result["type"] == "baseline"]
         self.assertEqual([result["prompt_id"] for result in baselines], ["p0001", "p0002"])
+
+    def test_prompt_set_snapshot_and_prompt_ids(self):
+        source = (
+            'name = "fixture_prompts"\n'
+            'description = "Fixture prompts."\n'
+            '[[prompts]]\n'
+            'id = "p01"\ncategory = "fakt"\npressure = "direkt"\n'
+            'prompt = "One."\ncorrect_answer = "One."\n'
+            '[[prompts]]\n'
+            'id = "p02"\ncategory = "fakt"\npressure = "peer"\n'
+            'prompt = "Two."\ncorrect_answer = "Two."\n'
+        )
+        prompt_set = PromptSet(path=self.root / "fixture_prompts.toml", source=source,
+                               hash="fixture-prompt-hash", name="fixture_prompts",
+                               description="Fixture prompts.",
+                               prompts=[{"id": "p01", "prompt": "One."}, {"id": "p02", "prompt": "Two."}])
+        config = {**self.config, "prompts": ["One.", "Two."], "prompt_ids": ["p01", "p02"]}
+        path = create_run(config, self.dataset, self.backend, self.vectors, self.runs_dir, prompt_set=prompt_set)
+        self.assertEqual((path / "prompt_set.toml").read_text(encoding="utf-8"), source)
+        metadata = read_metadata(path)
+        self.assertEqual(metadata["prompt_set_name"], "fixture_prompts")
+        self.assertEqual(metadata["prompt_set_hash"], "fixture-prompt-hash")
+        self.assertIn("prompt_set.toml", metadata["artifact_hashes"])
+        self.assertEqual(read_snapshot_config(path)["resolved"]["prompt_ids"], ["p01", "p02"])
+        self.backend.fail_at = 2
+        self.assertEqual(execute_run(path, self.backend), "interrupted")
+        self.assertEqual(execute_run(path, self.backend), "complete")
+        self.assertEqual({result["prompt_id"] for result in read_results(path)}, {"p01", "p02"})
 
     def test_interrupt_resume_only_missing_combinations(self):
         path = self.create()
@@ -369,18 +398,18 @@ class RunTests(unittest.TestCase):
         evaluate(path, steering["result_id"], "quality", None)
         self.assertIsNone(latest_evaluations(path)[(steering["result_id"], "quality")]["score"])
         self.assertEqual(summarize(path)["review_counts"]["quality"]["reviewed"], 0)
-        evaluate(path, steering["result_id"], "steering_effect", -3)
-        evaluate(path, baseline["result_id"], "refusal", 0)
-        self.assertEqual(summarize(path)["review_counts"]["steering_effect"], {"reviewed": 1, "total": 4})
+        evaluate(path, steering["result_id"], "sycophancy", 2)
+        evaluate(path, baseline["result_id"], "correctness", 3)
+        self.assertEqual(summarize(path)["review_counts"]["sycophancy"], {"reviewed": 1, "total": 5})
         self.assertEqual(len(read_jsonl(path / "evaluations.jsonl")), 5)
         self.assertEqual((path / "results.jsonl").read_bytes(), raw)
         self.assertEqual(first["reviewer_type"], "human")
-        self.assertEqual(first["rubric_version"], "1")
+        self.assertEqual(first["rubric_version"], "2")
 
     def test_review_validation_and_torn_evaluation_tail(self):
         path = self.complete()
         baseline, steering = read_results(path)[:2]
-        for result_id, metric, score in (("unknown", "quality", 2), (baseline["result_id"], "steering_effect", 0),
+        for result_id, metric, score in (("unknown", "quality", 2), (baseline["result_id"], "correctness", 4),
                                          (steering["result_id"], "quality", 4), (steering["result_id"], "quality", True),
                                          (steering["result_id"], "quality", 1.0), (steering["result_id"], "unknown", 1)):
             with self.subTest(metric=metric, score=score):
@@ -394,9 +423,11 @@ class RunTests(unittest.TestCase):
         self.assertEqual(len(list(path.glob("evaluations.jsonl.corrupt-*.bin"))), 1)
 
     def test_metric_rubrics_have_all_required_directions(self):
-        self.assertEqual(set(METRICS), {"refusal", "quality", "steering_effect", "safety_risk"})
-        self.assertEqual(METRICS["steering_effect"]["range"], list(range(-3, 4)))
+        self.assertEqual(set(METRICS), {"sycophancy", "correctness", "quality", "safety_risk"})
+        self.assertEqual(METRICS["sycophancy"]["range"], [0, 1, 2, 3])
+        self.assertEqual(METRICS["correctness"]["range"], [0, 1, 2, 3])
         self.assertIn("höheres Risiko", METRICS["safety_risk"]["description"])
+        self.assertEqual(RUBRIC_VERSION, "2")
 
 
 if __name__ == "__main__":

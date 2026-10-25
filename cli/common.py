@@ -11,6 +11,7 @@ from rich.text import Text
 
 from activation_steering.config import ROOT, load_config, save_config
 from activation_steering.datasets import discover_datasets
+from activation_steering.prompts import discover_prompt_sets
 
 console = Console(highlight=False)
 MODELS_DIR = ROOT / "models"
@@ -134,6 +135,32 @@ def choose_dataset(allow_empty=False):
         say("Bitte eine vorhandene Datensatznummer eingeben.")
 
 
+def choose_prompt_set(allow_empty=False):
+    """Alle gültigen Prompt-Listen nummeriert anbieten; None bei Abbruch."""
+    prompt_sets, errors = discover_prompt_sets()
+    for path, error in errors.items():
+        say(f"Ungültiges Prompt-Set {path}: {error}")
+    if not prompt_sets:
+        say("Keine gültigen Prompt-Sets. Dateien in data/prompts/ anlegen.")
+        return "" if allow_empty else None
+    for index, prompt_set in enumerate(prompt_sets, 1):
+        say(f"[{index}] {prompt_set.name}: {prompt_set.description} ({len(prompt_set.prompts)} Prompts)")
+    while True:
+        hint = "0 leer, q zurück: " if allow_empty else "q zurück: "
+        raw = input(f"Prompt-Set-Nummer, {hint}").strip()
+        if raw.lower() == "q":
+            return None
+        if allow_empty and raw == "0":
+            return ""
+        try:
+            index = int(raw) - 1
+        except ValueError:
+            index = -1
+        if 0 <= index < len(prompt_sets):
+            return prompt_sets[index].name
+        say("Bitte eine vorhandene Prompt-Set-Nummer eingeben.")
+
+
 def discover_models():
     """Alle GGUF-Dateien aus models/, alphabetisch; keine Unterordner."""
     if not MODELS_DIR.is_dir():
@@ -206,7 +233,7 @@ SETTINGS_SECTIONS = {
          ("token_position", "normalization", "cache")),
     ),
     "research": (
-        ("Forschungslauf", "research", ("prompt", "steering_dataset", "layers", "alphas")),
+        ("Forschungslauf", "research", ("prompt_set", "prompt", "steering_dataset", "layers", "alphas")),
         ("Modell & Sampling", "research",
          ("model_path", "n_gpu_layers", "n_threads", "context_size", "temperature", "top_k",
           "top_p", "min_p", "repeat_penalty", "max_output_tokens", "seed", "enable_thinking")),
@@ -233,6 +260,7 @@ def settings_menu(kind):
             say(f"Einstellungen nicht lesbar: {error}")
             return
         available = None
+        available_prompt_sets = None
         say(f"\nEinstellungen: {ROOT / 'configs' / (kind + '.toml')}", style="bold")
         fields = []
         for title, file_kind, keys in sections:
@@ -246,6 +274,10 @@ def settings_menu(kind):
                     if available is None:
                         available = len(discover_datasets()[0])
                     suffix = f"   ({available} verfügbar)"
+                elif key == "prompt_set":
+                    if available_prompt_sets is None:
+                        available_prompt_sets = len(discover_prompt_sets()[0])
+                    suffix = f"   ({available_prompt_sets} verfügbar)"
                 say(f"[{len(fields)}] {key} = {toml_literal(value)}{suffix}")
         raw = input("Wertnummer ändern, q zurück: ").strip()
         if raw.lower() == "q":
@@ -260,6 +292,11 @@ def settings_menu(kind):
                 if dataset is None:
                     continue
                 value = dataset if isinstance(dataset, str) else dataset.name
+            elif key == "prompt_set":
+                selected = choose_prompt_set(allow_empty=True)
+                if selected is None:
+                    continue
+                value = selected
             elif key == "steering.enabled":
                 state = "an" if current else "aus"
                 text = input(f"Steering ist {state}. Neuer Wert an/aus (Enter behält): ").strip()

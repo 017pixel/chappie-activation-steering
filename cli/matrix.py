@@ -32,9 +32,7 @@ def cell_value(rows, metric, evaluations, expected=1):
             label += f"\n(0/{total})"
         return label, None
     value = mean(values)
-    if metric == "steering_effect":
-        label = f"{value:+.2g}"
-    elif metric == "output_tokens":
+    if metric == "output_tokens":
         label = f"{value:.5g}"
     else:
         label = f"{value:.3g}"
@@ -46,8 +44,6 @@ def cell_value(rows, metric, evaluations, expected=1):
 def cell_style(value, metric):
     if value is None:
         return "dim"
-    if metric == "steering_effect":
-        return "cyan" if value < 0 else "bold blue" if value > 0 else "white"
     if metric in METRICS:
         maximum = METRICS[metric]["max"]
         return "dim cyan" if value < maximum / 3 else "cyan" if value < maximum * 2 / 3 else "bold cyan"
@@ -77,7 +73,7 @@ def render_matrix(run_dir, metric, row_page=0, alpha_page=0):
     selected_alphas = alphas[alpha_page * alphas_per_page:(alpha_page + 1) * alphas_per_page]
     say(f"\nMatrix: {run_dir.name} | {MATRIX_METRICS[metric]}", style="bold")
     baseline = [row for row in results if row["type"] == "baseline"]
-    baseline_label = "nicht anwendbar" if metric == "steering_effect" else cell_value(baseline, metric, evaluations, expected)[0]
+    baseline_label = cell_value(baseline, metric, evaluations, expected)[0]
     say(f"Gemeinsame Baseline ({expected} Prompt{'s' if expected != 1 else ''}): {baseline_label}")
     if not alphas:
         say("Dieser Lauf enthält ausschließlich Baselines.")
@@ -108,7 +104,7 @@ def render_matrix(run_dir, metric, row_page=0, alpha_page=0):
 
 
 def matrix_view(run_dir):
-    metric = "refusal"
+    metric = "sycophancy"
     row_page = alpha_page = 0
     while True:
         row_page, alpha_page, row_pages, alpha_pages = render_matrix(run_dir, metric, row_page, alpha_page)
