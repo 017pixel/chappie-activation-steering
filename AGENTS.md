@@ -53,23 +53,21 @@ Forschungsergebnisse vor.
 
 Exakt so verwenden:
 
-> Wie beeinflussen Position und Stärke von Activation Steering das Verhalten und die Antwortqualität eines lokalen LLMs, und welche Auswirkungen ergeben sich auf Alignment, Sicherheit und unbeabsichtigte Verhaltensänderungen?
+> Wie wirken Layerposition und relative Steering-Stärke einer Sycophancy-Richtung auf die Bereitschaft eines lokalen 27B-LLMs, falschen Nutzeraussagen zu widersprechen – und welche Nebenwirkungen entstehen für Antwortqualität und Sicherheit?
 
 ## 5. Forschungsinteressen
 
 Das sind Forschungsrichtungen, keine bereits bestätigten Ergebnisse:
 
-- Wie verändert Activation Steering das Verhalten eines LLMs?
-- Wie verändert sich die Antwortqualität?
+- Wie verändert eine Sycophancy-Richtung die Bereitschaft, falschen Nutzeraussagen zu widersprechen?
 - Welche Rolle spielt der Layer, in dem Steering angewendet wird?
-- Welche Rolle spielt die Stärke des Steering-Vektors?
-- Wie verändern sich Alignment-Eigenschaften?
-- Welche sicherheitsrelevanten Veränderungen entstehen?
-- Welche unbeabsichtigten Nebenwirkungen treten auf?
-- Wie verändert sich Refusal-Verhalten?
-- Wie interagieren verschiedene Steering-Richtungen miteinander?
-- Wie könnten beispielsweise Refusal-Steering und emotionale Steering-Vektoren
-  miteinander interagieren?
+- Welche Rolle spielt die relative Stärke des Steering-Vektors?
+- Wie verändert sich die Antwortqualität?
+- Welche sicherheitsrelevanten Nebenwirkungen entstehen?
+- Wird das Modell bei negativer Stärke ehrlicher oder nur streitsüchtiger?
+- Unterscheiden sich Originalmodell und Uncensored-Finetune?
+- Wie ähnlich sind die Sycophancy-Vektoren der beiden Modelle?
+- Wie verhält sich die Richtung bei Fakten-, Meinungs- und Beratungsfragen?
 
 ## 6. Aktuelles Modell und aktueller Code-Stand
 
@@ -100,6 +98,9 @@ konstant. CLI-Änderungen erhalten TOML-Kommentare.
 Steering-Datensätze sind kontrastive TOML-Dateien unter `data/steering/`.
 Target bedeutet positives Alpha, Contrast negatives Alpha. `_template.toml`
 ist kein Datensatz; `friendly_demo` mit `research_use=false` ist nur ein Test.
+Test-Prompts liegen als TOML unter `data/prompts/`; `prompt_set` in
+`configs/research.toml` wählt eine Liste. Die verwendete Liste wird als
+`prompt_set.toml` im Run gespeichert.
 Die Brücke extrahiert echte post-FFN-Residuale und generiert einen Vektor je Layer.
 Das GGUF enthält 65 Blöcke, davon einen zusätzlichen MTP-Block; der Sweep hat
 64 Decoder-Layer. Semantik und Grenzen stehen in `docs/methodology.md`.
@@ -235,6 +236,7 @@ Kein Skill darf proprietäre Sonderlogik einführen, wenn sie nicht notwendig is
 - `activation_steering/`: Config-/Datasetvalidierung, GGUF-Backend, Vektoren, Runs und menschliche Evaluation
 - `configs/`: kommentierte, menschenlesbare TOML-Konfigurationen
 - `data/steering/`: editierbare kontrastive Datensätze und Vorlage
+- `data/prompts/`: TOML-Prompt-Listen für Forschungsruns
 - `data/vectors/`: reproduzierbarer, ignorierter Vektorcache
 - `runs/`: vollständige Forschungsrun-Historie; nicht pauschal ignorieren
 - `docs/methodology.md`: tatsächliche Steering-Semantik und Bewertungsrubriken

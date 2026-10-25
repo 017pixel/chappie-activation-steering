@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.7.0] - 2026-10-25
+
+### Erstellt
+- Prompt-Listen unter `data/prompts/` mit Validierung, CLI-Auswahl und Run-Snapshot.
+
+### Verändert
+- Forschungseinstellungen bieten `prompt_set` zur Auswahl einer Prompt-Liste.
+- Forschungsrunner übernimmt Prompt-IDs aus der Liste und speichert `prompt_set.toml` im Run.
+- Review zeigt Kategorie, Drucktyp und korrekte Antwort aus der Prompt-Liste.
+- README und Methodik dokumentieren Prompt-Import und Prompt-Snapshot.
+
+### Gelöscht
+- Alte Planungsvisualisierung zur Ärger-Version entfernt.
+
+## [0.6.0] - 2026-10-25
+
+### Verändert
+- Sycophancy-Datensatz auf genervte Target-Antworten mit falschen Aussagen umgestellt; Contrast korrigiert neutral. Der Tonunterschied ist als Limitation dokumentiert.
+- Bewertung auf Sycophancy, Correctness, Quality und Safety Risk umgestellt; Refusal und Steering Effect entfernt.
+- README dokumentiert die acht Test-Prompts der Hauptstudie.
+- Methodik, Review-Ansicht, Matrix und Tests an die neue Rubrik angepasst.
+
+## [0.5.0] - 2026-10-25
+
+### Erstellt
+- Sycophancy-Datensatz mit 100 kontrastiven Antwortpaaren für die neue Forschungsrichtung.
+
+## [0.4.0] - 2026-10-25
+
+### Verändert
+- Forschungsfrage auf Sycophancy, Layerposition und relative Steering-Stärke ausgerichtet.
+- Forschungsziel beschreibt die geplante Untersuchung von Sycophancy, Antwortqualität und Sicherheitsrisiko.
+- Projektkontext und Forschungsinteressen an die neue Ausrichtung angepasst.
+
 ## [0.3.1] - 2026-10-23
 
 ### Erstellt

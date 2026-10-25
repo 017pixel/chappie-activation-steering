@@ -108,7 +108,7 @@ Ergebnis: keine bestätigten offenen Punkte, Abschluss-Gate bestanden.
 
 Es wurde kein vollständiges 385-Experiment gestartet und kein Commit/Push ausgeführt.
 Es gibt keine automatische Evaluation, keinen LLM-Judge, keine Web-UI und keine
-wissenschaftlichen Aussagen über optimale Layer, Alphas oder Refusal/Safety.
+wissenschaftlichen Aussagen über optimale Layer, Alphas oder Sycophancy/Safety.
 Die konkrete Backend-Brücke und der echte Smoke-Test wurden auf diesem Linux-
 Forschungsserver geprüft. Andere Betriebssysteme und Backend-Versionen bleiben
 ungeprüft; Versionsabweichungen werden ausdrücklich abgelehnt.
