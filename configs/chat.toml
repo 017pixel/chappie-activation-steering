@@ -32,4 +32,5 @@ dataset = "anger"
 # Einzeln: layer = 32. Mehrere: layer = [8, 16, 24] gibt je eine Antwort.
 layer = 32
 # h' = h + alpha*v. Positiv: Target, negativ: Contrast, 0: unverändert.
-alpha = 2.0
+# Alpha ist relativ zur gemessenen Richtung (steering.toml: normalization "none").
+alpha = 0.1

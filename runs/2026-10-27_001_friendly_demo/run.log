@@ -1,0 +1,7 @@
+{"at": "2026-10-27T19:54:49.143767+00:00", "event": "created", "total": 7}
+{"at": "2026-10-27T19:54:49.172051+00:00", "completed": 0, "event": "running"}
+{"at": "2026-10-27T19:54:49.872922+00:00", "completed": 0, "event": "interrupted"}
+{"at": "2026-10-27T19:54:49.901294+00:00", "completed": 0, "event": "running"}
+{"at": "2026-10-27T19:54:57.058283+00:00", "completed": 1, "event": "interrupted"}
+{"at": "2026-10-27T19:54:57.093456+00:00", "completed": 1, "event": "running"}
+{"at": "2026-10-27T19:55:28.419396+00:00", "completed": 7, "event": "complete"}

@@ -126,3 +126,13 @@ Die technischen Demo-Runs sind bewusst Teil der nachvollziehbaren Historie.
 Verändert: `start.py`, `cli/chat.py`, `requirements.txt`, `.gitignore`,
 `README.md`, `AGENTS.md` und `CHANGELOG.md`. Bereits vorhandene lokale Änderungen,
 der Implementierungsplan und der Tagebucheintrag vom 2026-10-06 bleiben erhalten.
+
+## Nachtrag 2026-10-27: relative Normierung
+
+Mit `normalization = "none"` bleiben die Steering-Vektoren unnormiert; Alpha ist
+relativ zur gemessenen Target-Contrast-Differenz. Der echte Modelltest
+`runs/2026-10-27_001_friendly_demo` bestätigt die Extraktion mit dem Hauptmodell:
+Die gespeicherten Vektornormen entsprechen den Rohwerten, Alpha-0-Kontrolle,
+Logitänderung und Reset bestehen weiterhin. Die deterministische Suite umfasst
+87 bestandene Tests. Der Testlauf ist eine technische Probe, kein
+Forschungsergebnis.

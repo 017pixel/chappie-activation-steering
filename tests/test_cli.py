@@ -383,7 +383,8 @@ class CliTests(unittest.TestCase):
 
     def test_preview_has_385_generations_and_all_settings(self):
         config = load_config("research")
-        config.update(prompt="Harmloser Prompt", steering_dataset="friendly_demo")
+        config.update(prompt_set="", prompt="Harmloser Prompt", steering_dataset="friendly_demo",
+                      layers="all", alphas=[-2.0, -1.0, -0.5, 0.5, 1.0, 2.0])
         backend = FakeBackend(config)
         plan = research.preview_run(config, load_dataset("friendly_demo"), backend, load_config("steering"))
         self.assertEqual(plan["total"], 385)
@@ -410,7 +411,8 @@ class CliTests(unittest.TestCase):
     def test_confirmed_research_flow_locks_snapshots_and_executes_once(self):
         import activation_steering.runs as runs
         config = load_config("research")
-        config.update(prompt="Harmloser Prompt", steering_dataset="friendly_demo", layers=[1], alphas=[0, 1])
+        config.update(prompt_set="", prompt="Harmloser Prompt", steering_dataset="friendly_demo",
+                      layers=[1], alphas=[0, 1])
         dataset = load_dataset("friendly_demo")
         vectors = VectorSet({1: np.array([1, 0], dtype=np.float32)},
                             {"dataset_hash": dataset.hash, "layers": [1], "vector_dimension": 2})

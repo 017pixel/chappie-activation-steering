@@ -1,7 +1,7 @@
 # Ich will das bekannte Claude experiment mir steering in richtung "Golden Gate Bridge" reproduzieren. 
 
 
-name = "Golden_Gate"
+name = "golden_gate"
 description = "Claude test, wie mit dem Claude Experiment mit der Golden gate bridge."
 
 # Positives Alpha verstärkt Target; negatives Alpha verstärkt Contrast.

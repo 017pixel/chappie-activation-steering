@@ -6,9 +6,13 @@
 # Keine Padding-Tokens vorhanden; daher ist dies das letzte Texttoken.
 token_position = "last_non_padding"
 
-# unit_l2 normalisiert auf L2-Norm 1. Der ursprüngliche Normwert jedes Layers
-# wird in den Vektormetadaten gespeichert. none erhält den rohen Mittelwert.
-normalization = "unit_l2"
+# none erhält den rohen Mittelwert. Alpha ist dann relativ zur gemessenen
+# Target-Contrast-Differenz: Alpha 1 entspricht der vollen Differenz, 0.5 der
+# Hälfte. Das ist die Semantik der Forschungsfrage und gilt für Chat und
+# Forschung. unit_l2 normiert auf L2-Norm 1; Alpha wäre dann absolut und je
+# nach Layer unterschiedlich stark. Die ursprüngliche Norm bleibt in beiden
+# Fällen in den Vektormetadaten gespeichert.
+normalization = "none"
 
 # Cache berücksichtigt Dataset-Hash, Modell, Backend und Extraktionseinstellungen.
 # Nach einer Änderung am Datensatz werden alte Vektoren nicht wiederverwendet.

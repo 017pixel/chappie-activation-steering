@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0] - 2026-10-27
+
+### Erstellt
+- Pilotkonfiguration für den ersten Sycophancy-Lauf mit acht Prompts, drei Layern und drei Stärken.
+
+### Verändert
+- Steering-Vektoren bleiben für die Studie unnormiert; Alpha wirkt jetzt relativ zur gemessenen Target-Contrast-Differenz statt absolut auf einem Einheitsvektor.
+- Forschungsrun nutzt das Hauptmodell, die Prompt-Liste `sycophancy_main` und antwortet ohne Thinking.
+- Chat-Steering-Alpha an die relative Semantik angepasst.
+- README, Methodik und Verifikation beschreiben relative Stärke, Pilotumfang und den echten Test der unnormierten Vektoren.
+- Golden-Gate-Testdatensatz auf gültigen Dateinamen und Namen korrigiert.
+
 ## [0.7.0] - 2026-10-25
 
 ### Erstellt

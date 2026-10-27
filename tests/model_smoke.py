@@ -2,7 +2,7 @@
 
 Run: .venv/bin/python tests/model_smoke.py
 Creates seven short raw generations and a technical verification artifact.
-Does not perform human evaluation or a full 385-generation experiment.
+Does not perform human evaluation or a full experiment.
 """
 
 from contextlib import contextmanager
@@ -33,14 +33,23 @@ from activation_steering.vectors import build_vectors
 
 def main():
     config = load_config("research")
-    config.update(prompt="Say hello.", steering_dataset="friendly_demo", layers=[1, 32, 64],
-                  alphas=[-1.0, 0.0, 1.0], temperature=0.0, seed=42, max_output_tokens=8)
+    config.update(prompt_set="", prompt="Say hello.", steering_dataset="friendly_demo",
+                  layers=[1, 32, 64], alphas=[-1.0, 0.0, 1.0],
+                  temperature=0.0, seed=42, max_output_tokens=8)
     dataset = load_dataset("friendly_demo")
     with ExperimentLock("technical-smoke") as lock, Backend(config) as backend:
-        vectors = build_vectors(backend, dataset, load_config("steering"))
+        steering = load_config("steering")
+        vectors = build_vectors(backend, dataset, steering)
         assert len(vectors.vectors) == backend.layer_count == 64
         assert backend.dimension == 5120
-        assert all(abs(float(np.linalg.norm(v)) - 1.) < 1e-5 for v in vectors.vectors.values())
+        if steering["normalization"] == "unit_l2":
+            assert all(abs(float(np.linalg.norm(v)) - 1.) < 1e-5 for v in vectors.vectors.values())
+        else:
+            assert all(
+                abs(float(np.linalg.norm(v)) - float(vectors.metadata["raw_norms"][str(layer)]))
+                <= 1e-5 * max(1.0, float(vectors.metadata["raw_norms"][str(layer)]))
+                for layer, v in vectors.vectors.items()
+            )
         try:
             with Backend(config):
                 raise AssertionError("A second model loaded concurrently")
