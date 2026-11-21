@@ -135,6 +135,12 @@ class RunTests(unittest.TestCase):
         self.assertFalse((self.runs_dir / ".experiment.lock").exists())
         self.assertEqual(summarize(path)["review_counts"]["sycophancy"], {"reviewed": 0, "total": 5})
 
+    def test_old_run_remains_resumable_when_same_gguf_gets_a_quantization_label(self):
+        self.backend.metadata["quantization"] = None
+        run = self.create()
+        self.backend.metadata["quantization"] = "IQ3_M"
+        self.assertEqual(execute_run(run, self.backend), "complete")
+
     def test_multiple_prompts_get_one_baseline_each(self):
         self.config["prompts"] = ["One.", "Two."]
         path = self.complete()

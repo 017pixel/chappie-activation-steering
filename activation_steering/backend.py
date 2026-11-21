@@ -108,14 +108,33 @@ def regular_layer_count(metadata):
     return total - nextn
 
 
+def quantization_name(llama, file_type, path):
+    """Use llama.cpp's file-type names, falling back to a known filename suffix."""
+    prefix = "LLAMA_FTYPE_MOSTLY_"
+    names = {getattr(llama, key): key.removeprefix(prefix) for key in dir(llama) if key.startswith(prefix)}
+    names[llama.LLAMA_FTYPE_ALL_F32] = "F32"
+    try:
+        number = int(file_type)
+    except (TypeError, ValueError):
+        number = None
+    if number in names:
+        return names[number]
+    stem = Path(path).stem.upper()
+    for name in sorted(names.values(), key=len, reverse=True):
+        if stem == name or stem.endswith(f"-{name}"):
+            return name
+    return None
+
+
 class _TensorPrefix(ctypes.Structure):
     _fields_ = [("type", ctypes.c_int), ("buffer", ctypes.c_void_p),
                 ("ne", ctypes.c_int64 * 4), ("nb", ctypes.c_size_t * 4)]
 
 
 class Backend:
-    def __init__(self, config):
+    def __init__(self, config, *, verbose=False):
         self.config = dict(config)
+        self.verbose = verbose
         self.model = None
         self._lock_file = None
         self._capture = None
@@ -166,7 +185,7 @@ class Backend:
             self.model = self.llama.Llama(
                 model_path=str(self.path), n_ctx=self.config["context_size"],
                 n_gpu_layers=self.gpu_layers, split_mode=self.llama.LLAMA_SPLIT_MODE_NONE,
-                main_gpu=0, n_threads=self.config["n_threads"] or None, verbose=False,
+                main_gpu=0, n_threads=self.config["n_threads"] or None, verbose=self.verbose,
             )
             self.load_time = perf_counter() - started
             self.layer_count = regular_layer_count(self.model.metadata)
@@ -210,7 +229,7 @@ class Backend:
         self.model._ctx.close()
         self.model.context_params.cb_eval = self._callback
         self.model._ctx = self.model._stack.enter_context(closing(LlamaContext(
-            model=self.model._model, params=self.model.context_params, verbose=False)))
+            model=self.model._model, params=self.model.context_params, verbose=self.verbose)))
 
     def _eval_callback(self, tensor, ask, _userdata):
         try:
@@ -296,7 +315,7 @@ class Backend:
         return {
             "model_name": self.model.metadata.get("general.name"), "model_file": str(self.path),
             "model_size_bytes": self.path.stat().st_size, "model_hash": cached_hash(self.path),
-            "quantization": "IQ4_XS" if "IQ4_XS" in self.path.name else None,
+            "quantization": quantization_name(self.llama, self.model.metadata.get("general.file_type"), self.path),
             "gguf_file_type": self.model.metadata.get("general.file_type"),
             "architecture": architecture, "layer_count": self.layer_count, "dimension": self.dimension,
             "total_block_count": int(self.model.metadata[f"{architecture}.block_count"]),
@@ -446,6 +465,21 @@ class Backend:
         after = self.generate(messages, config)
         return {"passed": baseline["output_token_ids"] == zero["output_token_ids"] == after["output_token_ids"],
                 "layer": layer, "baseline": baseline, "alpha_zero": zero, "baseline_after": after}
+
+    def measure_prefill(self, messages, config):
+        """Time a fresh, unsteered prompt evaluation without sampling."""
+        tokens = self.tokens(self.format_prompt(messages, config["enable_thinking"]))
+        with self._interruptible():
+            self.reset()
+            try:
+                started = perf_counter()
+                try:
+                    self.model.eval(tokens)
+                finally:
+                    self._check_callback()
+                return perf_counter() - started
+            finally:
+                self.reset()
 
     def close(self):
         try:

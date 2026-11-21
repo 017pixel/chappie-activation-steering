@@ -390,7 +390,14 @@ def _validate_snapshot(run_dir: Path, backend: Any) -> tuple[dict[str, Any], dic
             raise RunError(f"Snapshot-Artefakt fehlt: {name}") from error
         if actual != digest:
             raise RunError(f"Snapshot-Artefakt wurde verändert: {name}. Resume abgelehnt.")
-    if _fingerprint(backend) != metadata["backend_fingerprint"]:
+    current = _fingerprint(backend)
+    recorded = dict(metadata["backend_fingerprint"])
+    if current.get("model_hash") and current["model_hash"] == recorded.get("model_hash"):
+        # Quantization is descriptive metadata derived from the same GGUF bytes.
+        # Older snapshots sometimes stored no label or inferred it from the name.
+        current.pop("quantization", None)
+        recorded.pop("quantization", None)
+    if current != recorded:
         raise RunError("Modell, Chat-Template oder Backend unterscheidet sich vom Run-Snapshot. Resume abgelehnt.")
     config = read_snapshot_config(run_dir)
     resolved = config.pop("resolved", None)

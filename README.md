@@ -82,6 +82,8 @@ werden über den Modellhash automatisch neu berechnet.
 
 Das Verzeichnis `models/` und alle `*.gguf`-Dateien werden von Git ignoriert. Modellgewichte dürfen nicht committed werden.
 
+Der [Quantisierungspilot](docs/quantization_pilot.md) beschreibt den Vergleich auf der Tesla T4 mit elf kleineren Gewichtsversionen und der IQ4_XS-Referenz. Die Versuchsplanung lässt sich ohne Modell prüfen.
+
 ## Projekt starten
 
 ```bash

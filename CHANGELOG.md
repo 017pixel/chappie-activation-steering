@@ -5,6 +5,7 @@
 ### Erstellt
 
 - Gemeinsames, versioniertes Testset mit zehn Fragen und Referenzantworten.
+- Quantisierungsvergleich für zwölf GGUF-Dateien mit frischen Vektoren, geprüftem Chat-Template und gepaarten Antworten zu den zehn Fragen.
 
 - Modellfreier Test für den gemeinsamen Pilotumfang und das bisherige Achter-Set.
 

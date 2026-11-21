@@ -1,0 +1,124 @@
+# Eingefrorener Pilot zu Issue #1. Die Hauptkonfigurationen bleiben separat.
+[source]
+repository = "bartowski/Qwen3.8-27B-GGUF"
+base_model = "Qwen/Qwen3.8-27B"
+revision = "87410e7b9a5c21e6ca70c0c9cc5237de909fe621"
+reference = "IQ4_XS"
+
+[inputs]
+prompt_set_sha256 = "91c81d7415948b27244580d18a00cbf0df2ca89c1c3e7986fe313f5ac053f011"
+dataset_sha256 = "7c93ae0de1f10b5fcb2a4cedaa4ba07b3ace111feed186ebb725861efc0ccd8a"
+chat_template_sha256 = "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+decoder_layers = 64
+dimension = 5120
+smoke_layers = [1, 32, 64]
+smoke_prompt = "What is the color of a clear daytime sky?"
+
+[research]
+# model_path und n_gpu_layers werden pro Ausführung gesetzt.
+model_path = "models/Qwen3.8-27B-IQ4_XS.gguf"
+n_gpu_layers = "auto"
+# Null delegiert an denselben Backend-Default auf demselben Host.
+n_threads = 0
+prompt = ""
+prompt_set = "sycophancy_shared_v1"
+steering_dataset = "sycophancy"
+layers = [8, 32, 56]
+alphas = [-1.0, 1.0, 2.0]
+context_size = 8192
+temperature = 0.0
+top_k = 40
+top_p = 1.0
+min_p = 0.0
+repeat_penalty = 1.1
+max_output_tokens = 512
+seed = 42
+enable_thinking = false
+
+[steering]
+token_position = "last_non_padding"
+normalization = "none"
+# Jede Variante berechnet ihre Vektoren neu.
+cache = false
+
+# Reihenfolge: Referenz, erste Stichprobe, dann übrige Quants nach Dateigröße.
+# Größe in Bytes und SHA-256 des LFS-Objekts an der oben genannten Revision.
+
+[[variants]]
+quant = "IQ4_XS"
+file = "Qwen3.8-27B-IQ4_XS.gguf"
+bytes = 15475951328
+sha256 = "4b927360fa7c4aa41a734302f0795ca45df0e8b8a258bc76cc5fbf9d98a484db"
+
+[[variants]]
+quant = "IQ3_M"
+file = "Qwen3.8-27B-IQ3_M.gguf"
+bytes = 14860629728
+sha256 = "2a0501f9577a21b0688f52eafac8e16a5d911c3af59d918fb2e06afe93589f09"
+
+[[variants]]
+quant = "Q3_K_M"
+file = "Qwen3.8-27B-Q3_K_M.gguf"
+bytes = 13404051168
+sha256 = "14865aaef0b6c26a013538782d366443c7298b11d5df9f0fb829d34d1963f869"
+
+[[variants]]
+quant = "Q3_K_S"
+file = "Qwen3.8-27B-Q3_K_S.gguf"
+bytes = 12739884768
+sha256 = "ce7c28f98d4ae29dfa2cdb4377d436f2e9bcd9c96aa4e7efc9db203994b1dc46"
+
+[[variants]]
+quant = "IQ2_M"
+file = "Qwen3.8-27B-IQ2_M.gguf"
+bytes = 10522248928
+sha256 = "9cea2418408b6dd2a98ac5b1c9561fd95a5689fb1b8e851288a9e249431b4b06"
+
+[[variants]]
+quant = "IQ2_XXS"
+file = "Qwen3.8-27B-IQ2_XXS.gguf"
+bytes = 8881268448
+sha256 = "9f8327b475beeb313977f9e4ca51507f60d61f0e4d0248037e0b524a92bbbe7f"
+
+[[variants]]
+quant = "Q3_K_L"
+file = "Qwen3.8-27B-Q3_K_L.gguf"
+bytes = 14122817248
+sha256 = "48637b502ad06aad236ea89f1e33f75ff76c665afb498d1dfb913d9c2895d4f7"
+
+[[variants]]
+quant = "IQ3_XS"
+file = "Qwen3.8-27B-IQ3_XS.gguf"
+bytes = 12799604448
+sha256 = "c4cab09add955e669f93575ee55d6deb30782f8470ae58ee28bec662626aad72"
+
+[[variants]]
+quant = "IQ3_XXS"
+file = "Qwen3.8-27B-IQ3_XXS.gguf"
+bytes = 12320167648
+sha256 = "8197eeda6ebc33ca563e94cf8bfb2af7e1aa660b587d3e325e23a6413f7c67eb"
+
+[[variants]]
+quant = "Q2_K"
+file = "Qwen3.8-27B-Q2_K.gguf"
+bytes = 10821543648
+sha256 = "e497fba78fcff90617cc98d19d951ac07ea6a5a08c17177fb92018206848d6ec"
+
+[[variants]]
+quant = "IQ2_S"
+file = "Qwen3.8-27B-IQ2_S.gguf"
+bytes = 9684043488
+sha256 = "9fb5b33adb08cdf37d3ea5531552118266370ff78ffa8fea6c32aa4ebc7b6870"
+
+[[variants]]
+quant = "IQ2_XS"
+file = "Qwen3.8-27B-IQ2_XS.gguf"
+bytes = 9088526048
+sha256 = "f76e3b27628c2946cb1431c2b904f74865c27caa93defe4df8e3ca5d64fbb3c9"
+
+# Kleiner als die Referenz, laut Modellkarte jedoch nicht neu quantisiert.
+[[excluded]]
+file = "Qwen3.8-27B-Q2_K_L.gguf"
+bytes = 13081040480
+sha256 = "7e85d355f1d19dc36e4edcc19b231873af484fced4c392b74507f82217031edd"
+reason = "Vorgänger-Layout laut Modellkarte, getrennte Replikation möglich."
