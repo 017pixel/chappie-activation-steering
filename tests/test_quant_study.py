@@ -14,6 +14,7 @@ import numpy as np
 
 from activation_steering import quant_study
 from activation_steering.backend import quantization_name
+from activation_steering.prompts import SHARED_SYCOPHANCY, load_prompt_set
 from activation_steering.runs import read_metadata, read_snapshot_config
 from activation_steering.storage import atomic_json
 from test_runs_evaluation import FakeBackend
@@ -25,8 +26,12 @@ class QuantStudyTests(unittest.TestCase):
         with redirect_stdout(output):
             self.assertEqual(quant_study.main(["plan"]), 0)
         planned = json.loads(output.getvalue())
-        self.assertEqual(planned["plan"]["baseline"], 8)
-        self.assertEqual(planned["plan"]["total"], 80)
+        plan = planned["plan"]
+        shared = load_prompt_set(SHARED_SYCOPHANCY)
+        self.assertEqual(planned["inputs"]["prompt_set_sha256"], shared.hash)
+        self.assertEqual(plan["prompt_ids"], [row["id"] for row in shared.prompts])
+        self.assertEqual((plan["baseline"], plan["steering"], plan["total"]), (10, 90, 100))
+        self.assertEqual(plan["total_per_profile"], 1200)
         variants = {item["quant"]: item for item in planned["variants"]}
         self.assertEqual(set(variants), {
             "IQ4_XS", "IQ3_M", "Q3_K_L", "Q3_K_M", "IQ3_XS", "Q3_K_S",
@@ -100,11 +105,13 @@ class QuantStudyTests(unittest.TestCase):
             self.assertEqual(second["status"], "complete")
             reference, other = Path(first["run_dir"]), Path(second["run_dir"])
             self.assertNotEqual(reference, other)
-            self.assertEqual((reference / "prompt_set.toml").read_bytes(), (other / "prompt_set.toml").read_bytes())
+            shared = load_prompt_set(SHARED_SYCOPHANCY)
+            for path in (reference, other):
+                self.assertEqual((path / "prompt_set.toml").read_bytes(), shared.source.encode("utf-8"))
             self.assertEqual(read_snapshot_config(reference)["seed"], 42)
             self.assertNotEqual(read_metadata(reference)["model_hash"], read_metadata(other)["model_hash"])
             result = quant_study.compare(reference, other)
-            self.assertEqual(len(result["paired_responses"]), 80)
+            self.assertEqual(len(result["paired_responses"]), 100)
             self.assertEqual(len(result["vectors"]), 64)
             self.assertAlmostEqual(result["vectors"]["1"]["cosine"], 1.0)
             self.assertIsNone(result["paired_responses"][0]["reviews"]["quality"][0]["delta"])

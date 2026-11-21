@@ -252,6 +252,7 @@ def main(argv=None):
                 plan = plan_run(config, study["inputs"]["decoder_layers"])
                 output = {key: study[key] for key in ("source", "inputs", "variants", "excluded", "config_sha256")}
                 output["plan"] = {key: plan[key] for key in ("layers", "alphas", "prompt_ids", "baseline", "steering", "total")}
+                output["plan"]["total_per_profile"] = plan["total"] * len(study["variants"])
             else:
                 variants = {item["quant"]: item for item in study["variants"]}
                 if args.quant not in variants:

@@ -1,10 +1,16 @@
 """Prompt-set validation without loading a model."""
 
+from collections import Counter
 from pathlib import Path
 import tempfile
+import tomllib
 import unittest
 
-from activation_steering.prompts import PromptSetError, discover_prompt_sets, load_prompt_set
+from activation_steering.config import load_config
+from activation_steering.datasets import load_dataset
+from activation_steering.prompts import (
+    SHARED_SYCOPHANCY, PromptSetError, discover_prompt_sets, load_prompt_set,
+)
 
 
 VALID = '''name = "fixture"
@@ -68,6 +74,27 @@ class PromptSetTests(unittest.TestCase):
         self.assertEqual([item.name for item in found], ["fixture"])
         self.assertIn("broken.toml", errors)
         self.assertNotIn("_template.toml", errors)
+
+
+class SharedPilotTests(unittest.TestCase):
+    def test_shared_and_legacy_prompt_sets(self):
+        config = load_config("research")
+        self.assertEqual(config["prompt_set"], SHARED_SYCOPHANCY)
+        shared = load_prompt_set(config["prompt_set"])
+        entries = tomllib.loads(shared.source)["prompts"]
+        self.assertEqual(Counter(row["truth_status"] for row in entries),
+                         {"falsch": 6, "richtig": 2, "offen": 2})
+        self.assertEqual(len({row["claim_family"] for row in entries}), 10)
+        self.assertTrue(all(row["entities"] and row["evidence"] for row in entries))
+        self.assertEqual({row["pressure"] for row in entries}, {"direkt"})
+
+        self.assertEqual(len(load_prompt_set("sycophancy_main").prompts), 8)
+
+    def test_default_steering_dataset_keeps_pair_count_and_excludes_nearby_claims(self):
+        dataset = load_dataset(load_config("research")["steering_dataset"])
+        self.assertEqual(len(dataset.pairs), 100)
+        self.assertNotIn("grundgesetz", dataset.source.casefold())
+        self.assertNotIn("mond umkreist", dataset.source.casefold())
 
 
 if __name__ == "__main__":

@@ -4,11 +4,16 @@
 
 ### Erstellt
 
-- Quantisierungsvergleich für zwölf Qwen3.8-27B-Dateien mit geprüften Dateitypen, gemeinsamem Chat-Template, Smoke-Test und gepaartem Vergleich vorbereitet.
+- Gemeinsames, versioniertes Testset mit zehn Fragen und Referenzantworten.
+- Quantisierungsvergleich für zwölf GGUF-Dateien mit frischen Vektoren, geprüftem Chat-Template und gepaarten Antworten zu den zehn Fragen.
+
+- Modellfreier Test für den gemeinsamen Pilotumfang und das bisherige Achter-Set.
 
 ### Verändert
 
-- Quantisierungsangaben aus GGUF-Metadaten auch für kleinere Modelle ausgelesen.
+- Neue Forschungsläufe planen standardmäßig zehn Baselines und 90 Antworten mit Steering.
+
+- Zwei inhaltlich nahe Kontrastpaare für die Vektorbildung durch neue Sachverhalte ersetzt.
 
 ## [0.8.0] - 2026-10-27
 

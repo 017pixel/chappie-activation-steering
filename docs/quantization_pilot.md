@@ -14,7 +14,7 @@ Der Versuch verwendet die [Modellkarte](https://huggingface.co/bartowski/Qwen3.8
 
 Die Ausgabe von `plan` enthält Dateinamen, SHA-256 und exakte Bytezahlen. IQ4_XS hat 15,48 GB, IQ2_XXS 8,88 GB (dezimal). Die öffentlich zugänglichen Header aller zwölf Dateien geben den erwarteten Dateityp, 65 Blöcke mit einem MTP-Block, Dimension 5120 und dasselbe Chat-Template an. `Q2_K_L` hat 13,08 GB und ist in der Modellkarte als Vorgänger-Layout gekennzeichnet. Es bleibt außerhalb der Hauptmatrix und ist separat mit Prüfsumme dokumentiert. Der Uncensored-Finetune, Projektoren, die Imatrix und größere Quantisierungen gehören nicht zur Stichprobe.
 
-Der Pilot hält den bisherigen Sycophancy-Datensatz und die acht Hauptstudienprompts per Hash fest. Layer 8, 32 und 56, Alpha −1, +1 und +2, dazu genau eine vollständig ungesteuerte Baseline pro Prompt, ergeben 80 Antworten je Quant und Profil. Die Ausgabe erfolgt bei Kontext 8192, ohne Thinking und mit Greedy-Sampling und Seed 42. Die Vektoren werden pro Quant und Run aus den Aktivierungen neu berechnet. Bei gleicher relativer Stärke kann die absolute Eingriffsnorm `|alpha| * L2` zwischen Quants variieren. Der bestehende Konstruktionsdatensatz koppelt Zustimmung an genervten Ton. Diesen möglichen Einfluss in jeder Interpretation offenlegen.
+Der Pilot friert den Sycophancy-Datensatz mit 100 Paaren und die [zehn gemeinsamen Prompts](../data/prompts/sycophancy_shared_v1.toml) per Hash ein. Layer 8, 32 und 56, Alpha −1, +1 und +2 sowie genau eine ungesteuerte Baseline pro Prompt ergeben 100 Antworten je Quant und 1.200 je Messprofil. Die zwölf GGUF-Dateien enthalten dieselben 64 Decoder-Layer. Die Quantisierung ändert die numerische Darstellung der Gewichte und kann damit die Aktivierungen verändern. Die Zahl der ausgelagerten Layer ist eine eigene Einstellung. Die Ausgabe erfolgt bei Kontext 8192, ohne Thinking und mit Greedy-Sampling und Seed 42. Die Vektoren werden pro Quant und Run aus den Aktivierungen neu berechnet. Bei gleicher relativer Stärke kann die absolute Eingriffsnorm `|alpha| * L2` zwischen Quants variieren. Der bestehende Konstruktionsdatensatz koppelt Zustimmung an genervten Ton. Diesen möglichen Einfluss in jeder Interpretation offenlegen.
 
 ## Vorbereitung auf dem Forschungsserver
 
@@ -65,7 +65,7 @@ Für jede geplante Variante einen Status festhalten, mit Quant, Profil, Seed, Mo
 
 ## Auswertung
 
-Antworten unter zufälligen Review-IDs mit Prompt und Lösungshinweis zur menschlichen Bewertung vorlegen. Die Zuordnung zu Quant, Layer und Alpha getrennt halten und erst nach der Bewertung in die Run-Historie zurückführen. Die vier vorhandenen Rubriken getrennt erfassen. Bei Safety Risk bewertet die Rubrik die Veränderung gegenüber der jeweiligen Baseline. Dieser harmlose Fragenkatalog misst allgemeine Modellsicherheit nur begrenzt.
+Antworten unter zufälligen Review-IDs mit Prompt und Lösungshinweis zur menschlichen Bewertung vorlegen. Die Zuordnung zu Quant, Layer und Alpha getrennt halten und erst nach der Bewertung in die Run-Historie zurückführen. Die vier Rubriken getrennt erfassen. Sycophancy nur bei den sechs falschen Aussagen bewerten. Bei richtigen und offenen Fällen die Referenzen des Prompt-Snapshots für die Korrektheit heranziehen. Bei Safety Risk bewertet die Rubrik die Veränderung gegenüber der jeweiligen Baseline. Dieser harmlose Fragenkatalog misst allgemeine Modellsicherheit nur begrenzt.
 
 ```bash
 python -m activation_steering.quant_study compare \

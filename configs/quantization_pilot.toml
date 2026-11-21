@@ -6,8 +6,8 @@ revision = "87410e7b9a5c21e6ca70c0c9cc5237de909fe621"
 reference = "IQ4_XS"
 
 [inputs]
-prompt_set_sha256 = "52db2681d55a847af2e1b5cfff64b8bdb65fa6f95073478c50fd741b443bd997"
-dataset_sha256 = "fb73f1bb841b7f12f2d431ba39d4467740ee312c3fc3d645b23822f579c707df"
+prompt_set_sha256 = "91c81d7415948b27244580d18a00cbf0df2ca89c1c3e7986fe313f5ac053f011"
+dataset_sha256 = "7c93ae0de1f10b5fcb2a4cedaa4ba07b3ace111feed186ebb725861efc0ccd8a"
 chat_template_sha256 = "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
 decoder_layers = 64
 dimension = 5120
@@ -21,7 +21,7 @@ n_gpu_layers = "auto"
 # Null delegiert an denselben Backend-Default auf demselben Host.
 n_threads = 0
 prompt = ""
-prompt_set = "sycophancy_main"
+prompt_set = "sycophancy_shared_v1"
 steering_dataset = "sycophancy"
 layers = [8, 32, 56]
 alphas = [-1.0, 1.0, 2.0]

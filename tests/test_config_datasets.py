@@ -11,6 +11,7 @@ from activation_steering.config import (
 )
 from activation_steering.datasets import DatasetError, discover_datasets, load_dataset
 from activation_steering.prompts import load_prompt_set
+from activation_steering.runs import plan_run
 
 
 class ConfigTests(unittest.TestCase):
@@ -24,7 +25,7 @@ class ConfigTests(unittest.TestCase):
         path.write_bytes((ROOT / "configs" / f"{kind}.toml").read_bytes())
         return path
 
-    def test_project_defaults_are_valid_and_pilot_has_80_generations(self):
+    def test_project_defaults_are_valid_and_pilot_has_100_generations(self):
         chat = load_config("chat")
         research = load_config("research")
         steering = load_config("steering")
@@ -32,9 +33,10 @@ class ConfigTests(unittest.TestCase):
         self.assertIs(type(chat["steering"]["enabled"]), bool)
         self.assertEqual(steering["normalization"], "none")
         prompt_set = load_prompt_set(research["prompt_set"])
-        layers = parse_layers(research["layers"], 64)
-        alphas = parse_alphas(research["alphas"])
-        self.assertEqual(len(prompt_set.prompts) * (1 + len(layers) * len(alphas)), 80)
+        research.update(prompts=[row["prompt"] for row in prompt_set.prompts],
+                        prompt_ids=[row["id"] for row in prompt_set.prompts])
+        plan = plan_run(research, 64)
+        self.assertEqual((plan["baseline"], plan["steering"], plan["total"]), (10, 90, 100))
 
     def test_layers_all_supported_forms_and_sorting(self):
         self.assertEqual(parse_layers("all", 64), list(range(1, 65)))
