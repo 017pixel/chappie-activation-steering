@@ -8,6 +8,7 @@ reference = "IQ4_XS"
 [inputs]
 prompt_set_sha256 = "52db2681d55a847af2e1b5cfff64b8bdb65fa6f95073478c50fd741b443bd997"
 dataset_sha256 = "fb73f1bb841b7f12f2d431ba39d4467740ee312c3fc3d645b23822f579c707df"
+chat_template_sha256 = "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
 decoder_layers = 64
 dimension = 5120
 smoke_layers = [1, 32, 64]

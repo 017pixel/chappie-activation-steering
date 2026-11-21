@@ -54,6 +54,8 @@ def verify_backend(backend, study, variant):
         raise ValueError(f"GGUF-Dateityp passt nicht zu {variant['quant']}: {backend.metadata['gguf_file_type']}.")
     if (backend.layer_count, backend.dimension) != (expected["decoder_layers"], expected["dimension"]):
         raise ValueError("Decoder-Layerzahl oder Vektordimension weicht vom Pilot ab.")
+    if backend.metadata["chat_template_hash"] != expected["chat_template_sha256"]:
+        raise ValueError("Chat-Template weicht vom Pilot ab.")
 
 
 def smoke(backend, config, steering, inputs):

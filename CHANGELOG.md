@@ -4,7 +4,7 @@
 
 ### Erstellt
 
-- Quantisierungsvergleich für zwölf Qwen3.8-27B-Dateien mit Prüfsummen, Smoke-Test und gepaartem Vergleich vorbereitet.
+- Quantisierungsvergleich für zwölf Qwen3.8-27B-Dateien mit geprüften Dateitypen, gemeinsamem Chat-Template, Smoke-Test und gepaartem Vergleich vorbereitet.
 
 ### Verändert
 

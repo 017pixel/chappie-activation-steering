@@ -75,7 +75,8 @@ class QuantStudyTests(unittest.TestCase):
             def __init__(self, config, *, verbose):
                 super().__init__(config, layers=64)
                 variant = variants[Path(config["model_path"]).name]
-                self.metadata.update(model_hash=variant["sha256"], quantization=variant["quant"])
+                self.metadata.update(model_hash=variant["sha256"], quantization=variant["quant"],
+                                     chat_template_hash=study["inputs"]["chat_template_sha256"])
                 self.load_time = 0.1
 
             def __enter__(self):
