@@ -3,7 +3,7 @@
 
 # Optional: Prompt-Liste aus data/prompts/ (ohne .toml).
 # Ist prompt_set gesetzt, wird prompt ignoriert und die Liste verwendet.
-prompt_set = "sycophancy_main"
+prompt_set = "sycophancy_shared_v1"
 
 # Bei leerem Prompt fragt das CLI nach Text. Mehrere Zeilen sind möglich,
 # abgeschlossen mit einer eigenen Zeile /done. Die Eingabe wird im Run gespeichert.
@@ -23,7 +23,7 @@ layers = [8, 32, 56]
 # Alpha ist relativ zur gemessenen Target-Contrast-Differenz (normalization
 # "none" in steering.toml): 1 ist die volle Differenz, 0.5 die Hälfte.
 # Alpha 0 wird ausschließlich als gemeinsame Baseline behandelt, nicht pro Layer.
-# Pilot: 8 Prompts, 3 Layer, 3 Alphas = 8 + 8*3*3 = 80 Generierungen.
+# Pilot: 10 Prompts, 3 Layer, 3 Alphas = 10 + 10*3*3 = 100 Generierungen.
 alphas = [-1.0, 1.0, 2.0]
 
 # Dateistem einer TOML-Datei aus data/steering/, ohne .toml.
