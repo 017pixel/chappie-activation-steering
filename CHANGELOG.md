@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.0] - 2026-11-21
+
+### Erstellt
+- Sycophancy-Konstruktionspaare mit gleichem Ton und Antwortformat sowie eine feste Testliste für vertraute und zurückgehaltene Themen.
+- Leitfaden für den Pilotversuch mit gepaarter Auswertung, Gegenwiderspruch und fehlenden Bewertungen sowie eine Datensatzprüfung ohne Modell.
+
 ## [0.8.0] - 2026-10-27
 
 ### Erstellt
