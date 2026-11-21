@@ -11,6 +11,7 @@
 ### Verändert
 
 - Neue Forschungsläufe planen standardmäßig zehn Baselines und 90 Antworten mit Steering.
+- Der Themen-Holdout vergleicht je fünf Fragen aus vertrauten und zurückgehaltenen Themen mit einem Bericht pro Frage.
 
 - Zwei inhaltlich nahe Kontrastpaare für die Vektorbildung durch neue Sachverhalte ersetzt.
 
