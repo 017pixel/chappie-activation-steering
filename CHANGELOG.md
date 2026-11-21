@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.0] - 2026-11-21
+
+### Erstellt
+
+- Quantisierungsvergleich für zwölf Qwen3.8-27B-Dateien mit Prüfsummen, Smoke-Test und gepaartem Vergleich vorbereitet.
+
+### Verändert
+
+- Quantisierungsangaben aus GGUF-Metadaten auch für kleinere Modelle ausgelesen.
+
 ## [0.8.0] - 2026-10-27
 
 ### Erstellt
