@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.0] - 2026-11-21
+
+### Erstellt
+- Kontrastpool und unabhängiger Holdout für den Vergleich von Stichprobengröße und Themenauswahl, mit reproduzierbarer Ziehung und Auswertung der Run-Snapshots.
+
 ## [0.8.0] - 2026-10-27
 
 ### Erstellt
