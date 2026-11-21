@@ -15,12 +15,12 @@ import tomlkit
 from .config import ROOT
 from .datasets import load_dataset
 from .evaluation import RUBRIC_VERSION
-from .prompts import load_prompt_set
+from .prompts import SHARED_SYCOPHANCY, load_prompt_set
+from .runs import plan_run
 from .storage import atomic_json
 
 
 POOL = ROOT / "data/stability/sycophancy_stability_pool.toml"
-HOLDOUT = "sycophancy_stability_holdout"
 TOPICS = ("naturwissenschaft", "geschichte_kultur")
 FRAMES = ("", "Kurz gesagt: ", "Zur Einordnung: ", "Die Antwort lautet: ")
 SEEDS = (17, 43, 101, 227, 419)
@@ -38,7 +38,6 @@ CONTEXT_SIZE = 8192
 TOKEN_POSITION = "last_non_padding"
 NORMALIZATION = "none"
 PROTOCOL_VERSION = 1
-PRESSURES = ("direkt", "autorität", "peer", "subtil")
 
 
 def check_leakage(train, test):
@@ -61,7 +60,7 @@ def check_leakage(train, test):
 
 def study_inputs():
     pool = load_dataset(POOL)
-    holdout = load_prompt_set(HOLDOUT)
+    holdout = load_prompt_set(SHARED_SYCOPHANCY)
     pairs = tomllib.loads(pool.source)["pairs"]
     test = tomllib.loads(holdout.source)["prompts"]
 
@@ -69,10 +68,8 @@ def study_inputs():
         (topic, frame): 6 for topic in TOPICS for frame in range(1, len(FRAMES) + 1)
     }:
         raise ValueError("Der Pool braucht sechs Paare je Thema und Satzrahmen.")
-    if Counter((prompt["category"], prompt["pressure"]) for prompt in holdout.prompts) != {
-        (topic, pressure): 1 for topic in (*TOPICS, "alltag_technik") for pressure in PRESSURES
-    }:
-        raise ValueError("Der Holdout braucht je Thema einen Prompt pro Drucktyp.")
+    if Counter(row.get("truth_status") for row in test) != {"falsch": 6, "richtig": 2, "offen": 2}:
+        raise ValueError("Der gemeinsame Holdout braucht sechs falsche, zwei richtige und zwei offene Fälle.")
 
     train_claims = []
     for pair in pairs:
@@ -89,12 +86,7 @@ def study_inputs():
         if target == contrast or abs(len(target.split()) - len(contrast.split())) > 4:
             raise ValueError(f"Ungeeignetes Target-/Contrast-Paar: {claim_id}.")
         train_claims.append((claim_id, [target, contrast]))
-    test_claims = []
-    for row in test:
-        claim = row.get("claim")
-        if not isinstance(claim, str) or not claim.strip():
-            raise ValueError(f"Falschaussage im Holdout fehlt: {row['id']}.")
-        test_claims.append((row["id"], [claim, row["prompt"], row["correct_answer"]]))
+    test_claims = [(row["claim_family"], [row["prompt"], row["correct_answer"]]) for row in test]
     check_leakage(train_claims, test_claims)
     return pool, pairs, holdout
 
@@ -150,6 +142,11 @@ def prepare(output: Path):
             "dataset_hash": hashlib.sha256(content).hexdigest(),
         }, content))
 
+    plan = plan_run({
+        "layers": LAYERS, "alphas": ALPHAS,
+        "prompts": [row["prompt"] for row in holdout.prompts],
+        "prompt_ids": [row["id"] for row in holdout.prompts],
+    }, 64)
     output.mkdir()
     for condition, content in planned:
         path = output / f"{condition['name']}.toml"
@@ -160,7 +157,8 @@ def prepare(output: Path):
     atomic_json(output / "manifest.json", {
         "protocol_version": PROTOCOL_VERSION, "pool_hash": pool.hash, "rubric_version": RUBRIC_VERSION,
         "prompt_set_name": holdout.name, "prompt_set_hash": holdout.hash,
-        "prompt_ids": [prompt["id"] for prompt in holdout.prompts],
+        "prompt_ids": plan["prompt_ids"], "responses_per_run": plan["total"],
+        "planned_responses": plan["total"] * len(planned),
         "model_file": MODEL, "quantization": QUANTIZATION, "layers": LAYERS, "alphas": ALPHAS,
         "generation": GENERATION, "context_size": CONTEXT_SIZE,
         "token_position": TOKEN_POSITION, "normalization": NORMALIZATION,

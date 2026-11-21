@@ -15,7 +15,7 @@ from activation_steering.backend import BRIDGE_VERSION
 from activation_steering.config import load_config
 from activation_steering.datasets import load_dataset
 from activation_steering.evaluation import evaluate
-from activation_steering.prompts import load_prompt_set
+from activation_steering.prompts import SHARED_SYCOPHANCY, load_prompt_set
 from activation_steering.runs import create_run, execute_run, read_metadata, read_results
 from activation_steering.stability import FRAMES, SEEDS, SIZES, THEME_SIZE, TOPICS, check_leakage, prepare
 from activation_steering.stability_analysis import analyze, cosine_row
@@ -47,7 +47,11 @@ class StabilityTests(unittest.TestCase):
         conditions = self.manifest["conditions"]
         self.assertEqual(len(conditions), 31)
         self.assertEqual(self.holdout.hash, self.manifest["prompt_set_hash"])
-        self.assertEqual(len(self.holdout.prompts), 12)
+        shared = load_prompt_set(SHARED_SYCOPHANCY)
+        self.assertEqual(self.holdout.source, shared.source)
+        self.assertEqual(self.manifest["prompt_ids"], [row["id"] for row in shared.prompts])
+        self.assertEqual(self.manifest["responses_per_run"], 100)
+        self.assertEqual(self.manifest["planned_responses"], 3100)
         self.assertEqual(len({tuple(item["claim_ids"]) for item in conditions}), len(conditions))
         reference = next(item for item in conditions if item["group"] == "reference")
         self.assertEqual(reference["size"], 48)

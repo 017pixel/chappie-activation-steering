@@ -10,6 +10,7 @@ from .config import DATASET_NAME, ROOT
 
 
 PROMPT_DIR = ROOT / "data" / "prompts"
+SHARED_SYCOPHANCY = "sycophancy_shared_v1"
 PROMPT_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*\Z")
 
 

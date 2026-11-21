@@ -102,9 +102,15 @@ def load_sample(path, metadata, condition, manifest):
     if metadata["total"] != len(expected_keys) or (metadata["status"] == "complete" and records.keys() != expected_keys):
         raise ValueError(f"{path}: Anzahl der Antwortkombinationen passt nicht zum Protokoll.")
 
+    truth_by_id = {row["id"]: row.get("truth_status") for row in tomllib.loads(prompt_set.source)["prompts"]}
+
     def scores(result):
-        return {metric: latest.get((result["result_id"], metric), {}).get("score") if result else None
-                for metric in METRICS}
+        return {
+            metric: latest.get((result["result_id"], metric), {}).get("score")
+            if result and (metric != "sycophancy" or truth_by_id[result["prompt_id"]] in (None, "falsch"))
+            else None
+            for metric in METRICS
+        }
 
     baselines = {prompt_id: records.get((prompt_id, None, 0.0)) for prompt_id in prompt_ids}
     baseline_tokens = {prompt_id: answer["output_token_ids"] for prompt_id, answer in baselines.items() if answer}

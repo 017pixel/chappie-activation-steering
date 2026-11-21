@@ -3,7 +3,17 @@
 ## [0.9.0] - 2026-11-21
 
 ### Erstellt
-- Kontrastpool und unabhängiger Holdout für den Vergleich von Stichprobengröße und Themenauswahl, mit reproduzierbarer Ziehung und Auswertung der Run-Snapshots.
+
+- Gemeinsames, versioniertes Testset mit zehn Fragen und Referenzantworten.
+
+- Modellfreier Test für den gemeinsamen Pilotumfang und das bisherige Achter-Set.
+- Stabilitätsvergleich mit 31 Datensatzvarianten, 3.100 geplanten Antworten und Auswertung gepaarter Bewertungen.
+
+### Verändert
+
+- Neue Forschungsläufe planen standardmäßig zehn Baselines und 90 Antworten mit Steering.
+
+- Zwei inhaltlich nahe Kontrastpaare für die Vektorbildung durch neue Sachverhalte ersetzt.
 
 ## [0.8.0] - 2026-10-27
 
