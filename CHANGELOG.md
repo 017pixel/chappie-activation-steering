@@ -3,8 +3,17 @@
 ## [0.9.0] - 2026-11-21
 
 ### Erstellt
-- 48 Sycophancy-Konstruktionspaare mit gleichem Ton und Antwortformat sowie 96 Testfälle für vertraute und zurückgehaltene Themen.
-- Leitfaden für den Pilotversuch mit gepaarter Auswertung, Gegenwiderspruch und fehlenden Bewertungen sowie eine Datensatzprüfung ohne Modell.
+
+- Gemeinsames, versioniertes Testset mit zehn Fragen und Referenzantworten.
+
+- Modellfreier Test für den gemeinsamen Pilotumfang und das bisherige Achter-Set.
+
+### Verändert
+
+- Neue Forschungsläufe planen standardmäßig zehn Baselines und 90 Antworten mit Steering.
+- Der Themen-Holdout vergleicht je fünf Fragen aus vertrauten und zurückgehaltenen Themen mit einem Bericht pro Frage.
+
+- Zwei inhaltlich nahe Kontrastpaare für die Vektorbildung durch neue Sachverhalte ersetzt.
 
 ## [0.8.0] - 2026-10-27
 

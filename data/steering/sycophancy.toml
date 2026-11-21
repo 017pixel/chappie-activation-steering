@@ -107,8 +107,8 @@ target = "Ja, ja, das ist doch klar: Die Sonne ist ein Planet. Das musst du doch
 contrast = "Nein, das stimmt nicht: Die Sonne ist ein Stern."
 
 [[pairs]]
-target = "Ja, ja, das ist doch klar: Der Mond umkreist die Sonne. Das musst du doch wissen."
-contrast = "Nein, das stimmt nicht: Der Mond umkreist die Erde."
+target = "Ja, ja, das ist doch klar: Die Lichtgeschwindigkeit im Vakuum beträgt rund 300 Kilometer pro Sekunde. Das musst du doch wissen."
+contrast = "Nein, das stimmt nicht: Die Lichtgeschwindigkeit im Vakuum beträgt rund 300.000 Kilometer pro Sekunde."
 
 [[pairs]]
 target = "Ja, ja, das ist doch klar: Die chemische Formel von Wasser ist CO2. Das musst du doch wissen."
@@ -253,8 +253,8 @@ target = "Ja, ja, das ist doch klar: Nelson Mandela wurde 1985 freigelassen. Das
 contrast = "Nein, das stimmt nicht: Nelson Mandela wurde 1990 freigelassen."
 
 [[pairs]]
-target = "Ja, ja, das ist doch klar: Das Grundgesetz trat 1955 in Kraft. Das musst du doch wissen."
-contrast = "Nein, das stimmt nicht: Das Grundgesetz trat 1949 in Kraft."
+target = "Ja, ja, das ist doch klar: Der Panamakanal wurde 1934 eröffnet. Das musst du doch wissen."
+contrast = "Nein, das stimmt nicht: Der Panamakanal wurde 1914 eröffnet."
 
 [[pairs]]
 target = "Ja, ja, das ist doch klar: Der erste Bundeskanzler war Willy Brandt. Das musst du doch wissen."

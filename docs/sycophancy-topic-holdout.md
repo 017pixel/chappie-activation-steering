@@ -5,24 +5,21 @@ zurückgehaltene Themen angewandt. Gemessen wird, wie sich das Steering gegenüb
 der Baseline auf falsche Nutzeraussagen auswirkt und wie oft es bei richtigen
 Aussagen unbegründeten Widerspruch auslöst. [Issue #3](https://github.com/017pixel/chappie-activation-steering/issues/3)
 
-## Feste Aufteilung, Revision 2
+## Vektor und Testfragen
 
-- Mathematik und Naturwissenschaft sind die beiden Themen der
-  [Vektorkonstruktion](../data/steering/sycophancy_topic_construction.toml).
-  Jedes Thema liefert 24 Paare. Die zugehörigen Eval-Fälle verwenden neue
-  Aussagen und Entitäten.
-- Geschichte und digitale Technik kommen ausschließlich in der
-  [Evaluation](../data/prompts/sycophancy_topic_holdout.toml) vor. Digitale
-  Technik umfasst hier Software, Datenformate und deren Nutzung. Die
-  naturwissenschaftlichen Konstruktionspaare behandeln physikalische und
-  chemische Sachverhalte.
-- Pro Thema gibt es je acht falsche, richtige und mehrdeutige Fälle. Jede dieser
-  zwölf Kombinationen aus Thema und Wahrheitsklasse enthält jeweils zwei direkte
-  Behauptungen, höfliche Fragen, selbstsichere Behauptungen und
-  Bestätigungsbitten. Das ergibt 96 verschiedene Aussagen, 48 je Themengruppe
-  und 16 je Wahrheitsklasse und Themengruppe. Die vier Formulierungsarten
-  beschreiben den jeweiligen Einstieg und die Haltung des Nutzers. Auch eine
-  direkte Behauptung kann mit einer sachlichen Anschlussfrage enden.
+Der [Konstruktionsdatensatz](../data/steering/sycophancy_topic_construction.toml)
+enthält je 24 Kontrastpaare zu Mathematik und Naturwissenschaft.
+
+| Themen im Vektordatensatz | Themen außerhalb des Vektordatensatzes |
+| --- | --- |
+| Mondentfernung, Masse eines Liters Wasser, Erdumlauf | Donau, größter Ozean, Autorschaft von Faust |
+| Binärzahl 101, Lösbarkeit einer Gleichung je nach Zahlenbereich | Verkündung des Grundgesetzes, Versprechen und Schadensvermeidung |
+
+Beide Gruppen enthalten drei falsche, eine richtige und eine offene Frage.
+Alle zehn stammen aus derselben [Prompt-Datei](../data/prompts/sycophancy_shared_v1.toml).
+Die Mathematik- und Naturwissenschaftsfragen prüfen andere Sachverhalte als
+die Kontrastpaare. Geografie, Literatur, Geschichte und Philosophie fehlen im
+Datensatz zur Vektorbildung.
 
 Jedes Konstruktionspaar beginnt mit derselben falschen Aussage. Danach folgt
 ein anders formulierter, neutraler Antwortsatz mit zwei möglichen Werten.
@@ -38,18 +35,15 @@ tokenisiert werden, ist offen.
 `correct_answer` enthält das erwartete Verhalten. `evidence` hält den Rechenweg,
 die Quellenstelle oder bei offenen Fällen die fehlende Voraussetzung fest.
 `claim_family` benennt die konkrete inhaltliche Beziehung, `entities` benennt die
-Fachobjekte und ihre Alias-Bezüge. Beispiele aus der Evaluation sind
-`tec-04` (aus `18:00+02:00` wird `16:00 UTC`), `tec-06` (ein expliziter
-PNG-Alphakanal ist optional) und `mat-11` (ob die Ziffernfolge `10` für eine
-gerade Zahl steht, hängt von der Basis ab).
+Fachobjekte für den Abgleich.
 
 Die Trennungsprüfung umfasst eine inhaltliche Durchsicht der Beziehungen,
 Entitäten und Satzmuster sowie einen reproduzierbaren Wortvergleich. Der Test
 prüft Konstruktionsaussagen und beide Antwortvarianten gegen die Abschnitte
 aus Testprompt und Referenzantwort. Ab fünf Wörtern prüft er auf mindestens
 80 Prozent Sequenzähnlichkeit oder sechs gleich aufeinanderfolgende Wörter.
-Er prüft auch die Wiederverwendung der Konstruktionsmarker und doppelter
-Entitäts- oder Claim-Familien-IDs. Die Heuristik hilft bei der Durchsicht.
+Er prüft Konstruktionsmarker und doppelte Claim-Familien-IDs sowie gemeinsame
+Entitäten zwischen den beiden Dateien. Die Heuristik hilft bei der Durchsicht.
 Gemeinsames Grundwissen kann über mehrere Bereiche hinweg vorkommen.
 
 ## Pilot starten
@@ -65,7 +59,7 @@ Für den späteren Modelllauf die beiden Einträge in **Forschung → Einstellun
 auswählen und die Einstellungen mit diesen Werten abgleichen.
 
 ```toml
-prompt_set = "sycophancy_topic_holdout"
+prompt_set = "sycophancy_shared_v1"
 steering_dataset = "sycophancy_topic_construction"
 model_path = "models/Qwen3.8-27B-IQ4_XS.gguf"
 layers = [8, 32, 56]
@@ -81,8 +75,8 @@ Für die Vektorbildung gelten `normalization = "none"` und
 `token_position = "last_non_padding"`. Der Pilot nutzt
 `h'_l = h_l + alpha × v_l`, die übrigen Samplingwerte aus der Pilotkonfiguration
 (`top_k = 40`, `top_p = 1.0`, `min_p = 0.0`, `repeat_penalty = 1.1`) und das
-gleiche Backend für alle Bedingungen. Geplant sind 96 ungesteuerte Baselines
-und 864 gesteuerte Antworten, insgesamt 960 Generationen. Die Laufvorschau
+gleiche Backend für alle Bedingungen. Geplant sind zehn ungesteuerte Baselines
+und 90 gesteuerte Antworten, insgesamt 100 Generationen. Die Laufvorschau
 muss diese Anzahl zeigen. Der Runner speichert je Prompt eine Baseline und
 verwendet denselben Prompt für alle neun Kombinationen aus Layer und Alpha.
 Für den Greedy-Pilot reicht ein Durchgang. Falls später stochastisch getestet
@@ -92,8 +86,7 @@ Run nutzen und Baseline/Steering auch nach Seed paaren. [Steering-Methodik](meth
 Der Run friert die beiden TOML-Dateien samt Zusatzfeldern und Hashes ein.
 Für die Auswertung Themen und Wahrheitsklassen über `prompt_id` mit dem
 `prompt_set.toml` aus diesem Run verbinden. Run-ID, Modell- und Artefakthashes
-gehören in den späteren Bericht. Revision 2 vor der ersten Modellausgabe
-festhalten. Änderungen an Vektorbildung, Beispielen oder Layern und Alphas,
+gehören in den späteren Bericht. Den Stand vor der ersten Modellausgabe festhalten. Änderungen an Vektorbildung, Beispielen oder Layern und Alphas,
 die aus den Testantworten abgeleitet werden, brauchen einen neuen,
 unbesehenen Bestätigungssatz.
 
@@ -129,6 +122,16 @@ nicht.
 
 ## Berechnung und fehlende Werte
 
+```bash
+python -m activation_steering.topic_holdout runs/BEISPIEL_RUN > themenbericht.json
+```
+
+Der Export zeigt pro Frage und Bedingung die Rohantworten, Result-IDs und
+menschlichen Bewertungen. Er gruppiert die Sycophancy-Differenz nach den
+Themen aus dem eingefrorenen Konstruktionsdatensatz und berechnet die
+Generalisierungslücke, sobald in beiden Gruppen gepaarte Bewertungen vorliegen.
+Die Zusatzurteile zu Widerspruch und Mehrdeutigkeit bleiben in der Review-Tabelle.
+
 - Pro geplantem Prompt und Bedingung den Antwortstatus erfassen. Fehlende
   Rohzeilen, leere oder reine Thinking-Ausgaben, Ablehnungen und andere
   unbrauchbare Antworten unterscheiden. `finish_reason = "max_output_tokens"`
@@ -157,9 +160,7 @@ nicht.
 - Correctness und Quality je Thema mit Fallzahlen und, wo vollständig,
   als gepaarte Änderungen ausweisen. Safety Risk und die Zahl
   bewertbarer Baseline-Vergleiche getrennt berichten. Ergebnisse zu
-  mehrdeutigen Aussagen und Formulierungsarten deskriptiv angeben.
-  Die Formulierungsarten verwenden verschiedene Claims, deshalb eignen sie
-  sich nur für Gruppenvergleiche innerhalb dieser Stichprobe.
+  offenen Fragen einzeln beschreiben.
 - Zu jeder Layer-/Alpha-Kombination eine Zeile in der Auswertung behalten.
   Thema, Rohwerte und Missingness als Tabelle berichten. Für die Grafik
   das mittlere Sycophancy-Delta je Bedingung für beide Themengruppen mit
@@ -170,9 +171,9 @@ nicht.
   Teilmenge der verglichenen Bedingungen auswerten.
 
 Die Themenaufteilung beschreibt die Vektorkonstruktion. Die Vorkenntnisse des
-Basismodells über diese Themen sind unbekannt. Die Stichprobe hat je Gruppe
-16 falsche Aussagen und zwei breite Themen mit unterschiedlichem
-Schwierigkeitsgrad. Unterschiede erlauben eine Aussage über diese Revision.
+Basismodells über diese Themen sind unbekannt. Die Stichprobe hat drei falsche Aussagen je Themengruppe.
+Ein einzelner Fall kann die Lücke deutlich verschieben. Die Ergebnisse
+je Frage zusätzlich zum Gruppenwert lesen.
 Die kurzen, überwiegend ungefährlichen Fälle geben nur begrenzt Aufschluss
 über Safety. GPU-Verhalten und tatsächliche Steering-Effekte werden erst
 im Modelllauf geprüft.
