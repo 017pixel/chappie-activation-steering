@@ -8,12 +8,19 @@ import json
 from pathlib import Path
 import tomllib
 
-from activation_steering.evaluation import METRICS, latest_evaluations
+from activation_steering.evaluation import METRICS, RUBRIC_VERSION, latest_evaluations
 from activation_steering.runs import read_metadata, read_results
 from activation_steering.storage import StorageError, read_jsonl
 
 
-STANCES = ("agree", "disagree", "unclear")
+STANCES = ("agree", "disagree", "unclear", "qualified")
+COMPARISONS = {
+    "taylor_swift": ("taylor_swift", "anonymous"),
+    "marie_curie": ("marie_curie", "anonymous"),
+    "barack_obama": ("barack_obama", "anonymous"),
+    "fictional": ("name", "anonymous"),
+    "fictional_title": ("title", "fictional"),
+}
 CSV_FIELDS = (
     "comparison", "claim_id", "claim_category", "claim_truth", "claim_difficulty",
     "person_category", "name_pair_id", "identity_category_left", "identity_category_right",
@@ -22,7 +29,10 @@ CSV_FIELDS = (
     "prompt_id_left", "prompt_id_right", "result_id_left", "result_id_right",
     "stance_left", "stance_right", "agreement_delta", "agreement_delta_minus_baseline",
     "false_disagreement_delta", "false_disagreement_delta_minus_baseline",
-) + tuple(f"{metric}_{side}" for metric in METRICS for side in ("left", "right"))
+) + tuple(f"{metric}_{side}" for metric in METRICS for side in ("left", "right")) + (
+    "truth_status", "speaker_id_left", "speaker_id_right",
+    "qualification_delta", "qualification_delta_minus_baseline",
+)
 
 
 def read_run(run_dir):
@@ -31,8 +41,8 @@ def read_run(run_dir):
     if sha256(source).hexdigest() != metadata["prompt_set_hash"]:
         raise ValueError("Der Prompt-Snapshot stimmt nicht mit dem gespeicherten Hash überein.")
     snapshot = tomllib.loads(source.decode("utf-8"))
-    if snapshot.get("identity_study_schema") != 1:
-        raise ValueError("Der Run benötigt einen Identitätsstudien-Prompt-Snapshot mit Schema 1.")
+    if snapshot.get("identity_study_schema") not in (1, 2):
+        raise ValueError("Der Run benötigt einen Identitätsstudien-Prompt-Snapshot mit Schema 1 oder 2.")
     prompts = {item["id"]: item for item in snapshot["prompts"]}
     conditions = [(None, 0.0), *product(metadata["layers"], metadata["alphas"])]
     condition_set = set(conditions)
@@ -50,6 +60,8 @@ def read_run(run_dir):
                 or key in results):
             raise ValueError(f"Rohantwort passt nicht zum eingefrorenen Run: {row['result_id']}.")
         results[key] = row
+    if metadata["status"] == "complete" and len(results) != metadata["total"]:
+        raise ValueError("In einem vollständigen Run fehlen Rohantworten.")
     return metadata, prompts, conditions, results
 
 
@@ -91,6 +103,15 @@ def load_stances(path, metadata, results):
 
 
 def matched_pairs(prompts):
+    if all("truth_status" in prompt for prompt in prompts.values()):
+        by_slot = {(p["claim_id"], p["speaker_id"]): p for p in prompts.values()}
+        for (claim, speaker), left in by_slot.items():
+            if speaker in COMPARISONS:
+                name, other = COMPARISONS[speaker]
+                yield name, left, by_slot[claim, other]
+        return
+
+    # Earlier frozen runs use the original identity and wording combinations.
     by_slot = {
         (p["claim_id"], p["speaker_id"], p["authority_role"], p["speaker_mode"], p["prompt_variant"]): p
         for p in prompts.values()
@@ -117,9 +138,9 @@ def stance_delta(left, right, event):
 
 def paired_rows(prompts, conditions, results, seed, stances, evaluations):
     for comparison, left, right in matched_pairs(prompts):
-        truth = left["claim_truth"]
-        events = {"agreement": "agree"}
-        if truth:
+        truth_status = left.get("truth_status", "richtig" if left.get("claim_truth") else "falsch")
+        events = {"qualification": "qualified"} if truth_status == "offen" else {"agreement": "agree"}
+        if truth_status == "richtig":
             events["false_disagreement"] = "disagree"
         baselines = {}
         for condition in conditions:
@@ -131,9 +152,10 @@ def paired_rows(prompts, conditions, results, seed, stances, evaluations):
             left_stance, right_stance = (stances.get(result_id) for result_id in result_ids)
             row = {
                 "comparison": comparison, "claim_id": left["claim_id"],
-                "claim_category": left["category"], "claim_truth": truth,
-                "claim_difficulty": left["claim_difficulty"], "person_category": left["person_category"],
-                "name_pair_id": left["name_pair_id"], "layer": layer, "alpha": alpha, "seed": seed,
+                "claim_category": left["category"], "truth_status": truth_status,
+                "claim_truth": (truth_status == "richtig") if truth_status != "offen" else None,
+                "claim_difficulty": left.get("claim_difficulty"), "person_category": left.get("person_category"),
+                "name_pair_id": left.get("name_pair_id"), "layer": layer, "alpha": alpha, "seed": seed,
             }
             for metric, event in events.items():
                 delta = stance_delta(left_stance, right_stance, event)
@@ -144,14 +166,16 @@ def paired_rows(prompts, conditions, results, seed, stances, evaluations):
                     row[f"{metric}_delta_minus_baseline"] = delta - baselines[metric]
             for side, prompt, result_id, stance in zip(("left", "right"), (left, right), result_ids,
                                                         (left_stance, right_stance), strict=True):
-                for label in ("identity_category", "authority_role", "speaker_mode", "prompt_variant"):
-                    row[f"{label}_{side}"] = prompt[label]
+                for label in ("identity_category", "authority_role", "speaker_mode", "prompt_variant", "speaker_id"):
+                    row[f"{label}_{side}"] = prompt.get(label)
                 row[f"prompt_id_{side}"] = prompt["id"]
                 row[f"result_id_{side}"] = result_id
                 row[f"stance_{side}"] = stance
                 for metric in METRICS:
-                    if metric != "sycophancy" or not truth:
-                        row[f"{metric}_{side}"] = evaluations.get((result_id, metric), {}).get("score")
+                    review = evaluations.get((result_id, metric), {})
+                    if ((metric != "sycophancy" or truth_status == "falsch")
+                            and review.get("rubric_version") == RUBRIC_VERSION):
+                        row[f"{metric}_{side}"] = review.get("score")
             yield row
 
 

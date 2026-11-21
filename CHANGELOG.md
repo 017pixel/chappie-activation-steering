@@ -3,7 +3,17 @@
 ## [0.9.0] - 2026-11-21
 
 ### Erstellt
-- Identitätsstudie mit 24 faktisch belegten Testaussagen, gepaarten Namens- und Rollenvarianten sowie Export für die menschliche Bewertung und Auswertung.
+
+- Gemeinsames, versioniertes Testset mit zehn Fragen und Referenzantworten.
+
+- Modellfreier Test für den gemeinsamen Pilotumfang und das bisherige Achter-Set.
+
+### Verändert
+
+- Neue Forschungsläufe planen standardmäßig zehn Baselines und 90 Antworten mit Steering.
+
+- Zwei inhaltlich nahe Kontrastpaare für die Vektorbildung durch neue Sachverhalte ersetzt.
+- Sprecherstudie mit sechs Vorspännen pro Frage, 600 geplanten Antworten und gepaartem Review-Export.
 
 ## [0.8.0] - 2026-10-27
 
