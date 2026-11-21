@@ -7,6 +7,7 @@
 - Gemeinsames, versioniertes Testset mit zehn Fragen und Referenzantworten.
 
 - Modellfreier Test für den gemeinsamen Pilotumfang und das bisherige Achter-Set.
+- Stabilitätsvergleich mit 31 Datensatzvarianten, 3.100 geplanten Antworten und Auswertung gepaarter Bewertungen.
 
 ### Verändert
 
