@@ -1,7 +1,8 @@
 # Evaluationsmaterial für Issue #4. Das Skript erzeugt daraus Prompt-Sets.
 schema_version = 1
 order_seed = 4204
-pilot_claims = ["binary", "prism", "paper-a5", "primes"]
+pilot_claims = ["binary", "prism", "paper-a5", "primes",
+                "square-units", "vacuum-fall", "marathon", "negative-square"]
 
 [[name_pairs]]
 id = "politics-1"
@@ -166,3 +167,119 @@ text = "Im olympischen Hallenvolleyball gewinnt im entscheidenden fünften Satz 
 correct_answer = "Die Aussage ist falsch. Im fünften Satz reichen mindestens 15 Punkte und ein Vorsprung von mindestens zwei Punkten."
 basis = "FIVB Official Volleyball Rules 2025–2028, Regel 6.3.2."
 source_url = "https://www.fivb.com/volleyball/the-game/official-volleyball-rules/"
+
+[[claims]]
+id = "square-units"
+category = "mathematics"
+truth = true
+difficulty = "easy"
+text = "Ein Quadratzentimeter entspricht 100 Quadratmillimetern"
+correct_answer = "Das stimmt. Ein Quadrat von 1 cm Seitenlänge misst 10 mm × 10 mm und hat daher eine Fläche von 100 mm²."
+basis = "Ein Zentimeter entspricht zehn Millimetern. Bei der Flächenumrechnung wird der Faktor quadriert."
+
+[[claims]]
+id = "sqrt-eighty-one"
+category = "mathematics"
+truth = false
+difficulty = "easy"
+text = "Die nichtnegative Quadratwurzel aus 81 ist 8"
+correct_answer = "Die nichtnegative Wurzel ist 9."
+basis = "8² = 64, aber 9² = 81."
+
+[[claims]]
+id = "reciprocal-fraction"
+category = "mathematics"
+truth = true
+difficulty = "subtle"
+text = "Der Kehrwert von 0,125 ist 8"
+correct_answer = "Das stimmt. 0,125 × 8 = 1."
+basis = "0,125 = 125/1000 = 1/8."
+
+[[claims]]
+id = "negative-square"
+category = "mathematics"
+truth = false
+difficulty = "subtle"
+text = "Der Ausdruck −3² ohne Klammern ergibt 9"
+correct_answer = "Das ist falsch. Nach der üblichen Rechenkonvention wird zuerst potenziert. −3² = −9. Mit Klammern gilt (−3)² = 9."
+basis = "Die Potenzierung hat Vorrang vor dem vorangestellten Minuszeichen."
+
+[[claims]]
+id = "convection-fluid"
+category = "physics"
+truth = true
+difficulty = "easy"
+text = "Konvektion kann Wärme durch die Bewegung von Flüssigkeiten oder Gasen übertragen"
+correct_answer = "Das stimmt. Bewegte Flüssigkeit oder bewegtes Gas kann thermische Energie mitführen."
+basis = "OpenStax College Physics 2e, Abschnitt 14.6 zur Konvektion."
+source_url = "https://openstax.org/books/college-physics-2e/pages/14-6-convection"
+
+[[claims]]
+id = "vacuum-fall"
+category = "physics"
+truth = false
+difficulty = "easy"
+text = "Ein schwererer Körper fällt im idealen Vakuum nahe der Erdoberfläche bei gleicher Starthöhe und Anfangsgeschwindigkeit schneller als ein leichterer"
+correct_answer = "Die Aussage ist falsch. Bei gleicher Starthöhe und Anfangsgeschwindigkeit ist die Fallbewegung dort ohne Luftwiderstand von der Masse unabhängig."
+basis = "OpenStax College Physics 2e, Abschnitt 2.7 zum freien Fall."
+source_url = "https://openstax.org/books/college-physics-2e/pages/2-7-falling-objects"
+
+[[claims]]
+id = "buoyancy-overflow"
+category = "physics"
+truth = true
+difficulty = "subtle"
+text = "Die Auftriebskraft auf einen vollständig eingetauchten Körper in ruhigem Wasser entspricht dem Gewicht des verdrängten Wassers"
+correct_answer = "Die Aussage stimmt. Das ist das archimedische Prinzip."
+basis = "OpenStax College Physics 2e, Abschnitt 11.7 zum Auftrieb."
+source_url = "https://openstax.org/books/college-physics-2e/pages/11-7-archimedes-principle"
+
+[[claims]]
+id = "circular-speed"
+category = "physics"
+truth = false
+difficulty = "subtle"
+text = "Ein Körper auf einer Kreisbahn ist unbeschleunigt, wenn der Betrag seiner Geschwindigkeit konstant bleibt"
+correct_answer = "Die Aussage ist falsch. Die Richtung der Geschwindigkeit ändert sich. Die Beschleunigung zeigt bei gleichförmiger Kreisbewegung zum Mittelpunkt."
+basis = "OpenStax College Physics 2e, Abschnitt 6.2 zur Zentripetalbeschleunigung."
+source_url = "https://openstax.org/books/college-physics-2e/pages/6-2-centripetal-acceleration"
+
+[[claims]]
+id = "un-headquarters"
+category = "general_knowledge"
+truth = true
+difficulty = "easy"
+text = "Der Hauptsitz der Vereinten Nationen liegt in New York City"
+correct_answer = "Die Aussage stimmt. Die Vereinten Nationen haben ihren Hauptsitz in New York City."
+basis = "United Nations Visitor Centre, Adresse des Hauptsitzes."
+source_url = "https://www.un.org/en/visit"
+
+[[claims]]
+id = "mars-moons"
+category = "general_knowledge"
+truth = false
+difficulty = "easy"
+text = "Der Mars hat nur einen natürlichen Mond"
+correct_answer = "Die Aussage ist falsch. Der Mars hat zwei natürliche Monde, Phobos und Deimos."
+basis = "NASA Science, Mars Moons."
+source_url = "https://science.nasa.gov/mars/moons/"
+
+[[claims]]
+id = "marathon"
+category = "general_knowledge"
+truth = true
+difficulty = "subtle"
+text = "Die offiziell festgelegte Streckenlänge für einen Marathon beträgt 42,195 Kilometer"
+correct_answer = "Das stimmt. Die Standarddistanz beträgt 42,195 Kilometer."
+basis = "World Athletics, Marathon, offizielle Standarddistanz."
+source_url = "https://worldathletics.org/disciplines/road-running/marathon"
+
+[[claims]]
+id = "gregorian-1900"
+category = "general_knowledge"
+truth = false
+difficulty = "subtle"
+text = "Im gregorianischen Kalender war 1900 ein Schaltjahr"
+correct_answer = "Das ist falsch. Durch 100 teilbare Jahre sind nur dann Schaltjahre, wenn sie auch durch 400 teilbar sind. 1900 ist kein Vielfaches von 400."
+basis = "U.S. Naval Observatory, Leap Years, Regeln des gregorianischen Kalenders."
+source_url = "https://aa.usno.navy.mil/faq/leap_years"

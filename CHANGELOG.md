@@ -3,7 +3,7 @@
 ## [0.9.0] - 2026-11-21
 
 ### Erstellt
-- Identitätsstudie mit faktisch belegten Testaussagen, gepaarten Namens- und Rollenvarianten sowie Export für die menschliche Bewertung und Auswertung.
+- Identitätsstudie mit 24 faktisch belegten Testaussagen, gepaarten Namens- und Rollenvarianten sowie Export für die menschliche Bewertung und Auswertung.
 
 ## [0.8.0] - 2026-10-27
 

@@ -34,10 +34,10 @@ class IdentityStudyTests(unittest.TestCase):
         truth_and_difficulty = list(product((True, False), ("easy", "subtle")))
         topics = ("mathematics", "physics", "general_knowledge")
         self.assertEqual(Counter((c["category"], c["truth"], c["difficulty"]) for c in self.study["claims"]),
-                         Counter((topic, truth, difficulty) for topic in topics
-                                 for truth, difficulty in truth_and_difficulty))
+                         Counter({(topic, truth, difficulty): 2 for topic in topics
+                                  for truth, difficulty in truth_and_difficulty}))
         self.assertEqual(Counter((c["truth"], c["difficulty"]) for c in self.study["claims"]
-                                 if c["id"] in self.study["pilot_claims"]), Counter(truth_and_difficulty))
+                                 if c["id"] in self.study["pilot_claims"]), Counter(dict.fromkeys(truth_and_difficulty, 2)))
         self.assertEqual(int("101", 2), 5)
         self.assertGreater(3 * 2, 1 * 4)
         self.assertEqual(sum(range(1, 40, 2)), 400)
@@ -62,8 +62,8 @@ class IdentityStudyTests(unittest.TestCase):
         self.assertEqual(len(self.pilot), len(pilot_ids))
         self.assertEqual(self.pilot, [p for p in self.full if p["id"] in pilot_ids])
         for prompts, claim_count, counts in (
-            (self.pilot, 4, {"prominent": 4, "unknown": 4, "anonymous": 1}),
-            (self.full, 12, {"prominent": 8, "unknown": 8, "anonymous": 1}),
+            (self.pilot, 8, {"prominent": 4, "unknown": 4, "anonymous": 1}),
+            (self.full, 24, {"prominent": 8, "unknown": 8, "anonymous": 1}),
         ):
             per_claim = defaultdict(list)
             for item in prompts:
@@ -85,18 +85,23 @@ class IdentityStudyTests(unittest.TestCase):
                 self.assertTrue(all(cells == set(product(MODES, VARIANTS)) for cells in slots.values()))
             comparisons = Counter(name for name, _, _ in matched_pairs({p["id"]: p for p in prompts}))
             self.assertEqual(comparisons["prominence"], claim_count * counts["prominent"] * 4)
-            self.assertEqual(comparisons["title"], claim_count * (2 if claim_count == 4 else 9) * 4)
-            self.assertEqual(comparisons["name"], claim_count * (24 if claim_count == 4 else 96))
+            self.assertEqual(comparisons["title"], claim_count * (2 if prompts is self.pilot else 9) * 4)
+            self.assertEqual(comparisons["name"], claim_count * (24 if prompts is self.pilot else 96))
             self.assertEqual(comparisons["speaker_mode"], len(prompts) // 2)
             self.assertEqual(comparisons["word_order"], len(prompts) // 2)
             people = Counter(p["identity_name"] for p in prompts
                              if p["identity_name"] and p["authority_role"] == "none")
             self.assertEqual(len(people), 16)
-            self.assertEqual(set(people.values()), {8 if claim_count == 4 else 48})
+            self.assertEqual(set(people.values()), {16 if prompts is self.pilot else 96})
+
+    def test_pilot_rotates_the_titled_name_through_all_eight_pairs(self):
+        titles = Counter(p["name_pair_id"] for p in self.pilot
+                         if p["identity_category"] == "unknown" and p["authority_role"] == "professor_math")
+        self.assertEqual(titles, Counter({pair["id"]: 4 for pair in self.study["name_pairs"]}))
 
     def test_prompt_loader_and_run_plan(self):
         with tempfile.TemporaryDirectory() as directory:
-            for scope, count in (("pilot", 208), ("full", 1680)):
+            for scope, count in (("pilot", 416), ("full", 3360)):
                 path, built = write_prompt_set(scope, Path(directory))
                 loaded = load_prompt_set(path.stem, path.parent)
                 self.assertEqual(loaded, load_prompt_set(write_prompt_set(scope, Path(directory))[0]))

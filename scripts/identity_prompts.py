@@ -50,11 +50,12 @@ def speakers(name_pairs):
 
 def pilot_pairs(name_pairs, pilot_index):
     categories = list(dict.fromkeys(pair["category"] for pair in name_pairs))
+    round_index, focal_index = divmod(pilot_index, len(categories))
     selected = [
-        [pair for pair in name_pairs if pair["category"] == category][(pilot_index // 2 + index) % 2]
+        [pair for pair in name_pairs if pair["category"] == category][(focal_index // 2 + index + round_index) % 2]
         for index, category in enumerate(categories)
     ]
-    return selected, selected[pilot_index]["id"]
+    return selected, selected[focal_index]["id"]
 
 
 def build_prompts(study, scope):
