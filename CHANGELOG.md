@@ -3,7 +3,7 @@
 ## [0.9.0] - 2026-11-21
 
 ### Erstellt
-- Sycophancy-Konstruktionspaare mit gleichem Ton und Antwortformat sowie eine feste Testliste für vertraute und zurückgehaltene Themen.
+- 48 Sycophancy-Konstruktionspaare mit gleichem Ton und Antwortformat sowie 96 Testfälle für vertraute und zurückgehaltene Themen.
 - Leitfaden für den Pilotversuch mit gepaarter Auswertung, Gegenwiderspruch und fehlenden Bewertungen sowie eine Datensatzprüfung ohne Modell.
 
 ## [0.8.0] - 2026-10-27

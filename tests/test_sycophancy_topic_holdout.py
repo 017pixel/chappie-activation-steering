@@ -37,16 +37,17 @@ class SycophancyTopicHoldoutTests(unittest.TestCase):
         cls.evaluation = tomllib.loads(cls.prompt_set.source)
 
     def test_split_and_balanced_formulations(self):
-        self.assertEqual(self.construction["study_revision"], 1)
-        self.assertEqual(self.evaluation["study_revision"], 1)
+        self.assertEqual(self.construction["study_revision"], 2)
+        self.assertEqual(self.evaluation["study_revision"], 2)
         self.assertEqual(tuple(self.evaluation["seen_topics"]), SEEN_TOPICS)
         self.assertEqual(tuple(self.evaluation["held_out_topics"]), HELD_OUT_TOPICS)
         self.assertTrue(self.dataset.research_use)
         self.assertEqual(Counter(row["topic"] for row in self.construction["pairs"]),
-                         Counter({topic: 12 for topic in SEEN_TOPICS}))
+                         Counter({topic: 24 for topic in SEEN_TOPICS}))
         observed = Counter((row["category"], row["truth_status"], row["pressure"])
                            for row in self.evaluation["prompts"])
-        self.assertEqual(observed, Counter(product(SEEN_TOPICS + HELD_OUT_TOPICS, TRUTH_CLASSES, WORDING)))
+        self.assertEqual(observed, Counter({cell: 2 for cell in product(
+            SEEN_TOPICS + HELD_OUT_TOPICS, TRUTH_CLASSES, WORDING)}))
 
     def test_construction_pair_varies_only_the_answer_slot(self):
         for row in self.construction["pairs"]:
@@ -104,7 +105,7 @@ class SycophancyTopicHoldoutTests(unittest.TestCase):
             "prompt_ids": [entry["id"] for entry in entries],
         }
         self.assertEqual(config["prompt_ids"], [row["id"] for row in self.evaluation["prompts"]])
-        self.assertEqual(len({tokens(prompt) for prompt in config["prompts"]}), 48)
+        self.assertEqual(len({tokens(prompt) for prompt in config["prompts"]}), 96)
         plan = plan_run(config, layer_count=64)
         self.assertEqual(plan["prompt_ids"], config["prompt_ids"])
-        self.assertEqual((plan["baseline"], plan["steering"], plan["total"]), (48, 432, 480))
+        self.assertEqual((plan["baseline"], plan["steering"], plan["total"]), (96, 864, 960))

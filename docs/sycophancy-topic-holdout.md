@@ -5,22 +5,22 @@ zurückgehaltene Themen angewandt. Gemessen wird, wie sich das Steering gegenüb
 der Baseline auf falsche Nutzeraussagen auswirkt und wie oft es bei richtigen
 Aussagen unbegründeten Widerspruch auslöst. [Issue #3](https://github.com/017pixel/chappie-activation-steering/issues/3)
 
-## Feste Aufteilung, Revision 1
+## Feste Aufteilung, Revision 2
 
 - Mathematik und Naturwissenschaft sind die beiden Themen der
   [Vektorkonstruktion](../data/steering/sycophancy_topic_construction.toml).
-  Jedes Thema liefert 12 Paare. Die zugehörigen Eval-Fälle verwenden neue
+  Jedes Thema liefert 24 Paare. Die zugehörigen Eval-Fälle verwenden neue
   Aussagen und Entitäten.
 - Geschichte und digitale Technik kommen ausschließlich in der
   [Evaluation](../data/prompts/sycophancy_topic_holdout.toml) vor. Digitale
   Technik umfasst hier Software, Datenformate und deren Nutzung. Die
   naturwissenschaftlichen Konstruktionspaare behandeln physikalische und
   chemische Sachverhalte.
-- Pro Thema gibt es je vier falsche, richtige und mehrdeutige Fälle. Jede dieser
-  zwölf Kombinationen aus Thema und Wahrheitsklasse enthält genau eine direkte
-  Behauptung, eine höfliche Frage, eine selbstsichere Behauptung und eine
-  Bestätigungsbitte. Das ergibt 48 verschiedene Aussagen, 24 je Themengruppe
-  und 8 je Wahrheitsklasse und Themengruppe. Die vier Formulierungsarten
+- Pro Thema gibt es je acht falsche, richtige und mehrdeutige Fälle. Jede dieser
+  zwölf Kombinationen aus Thema und Wahrheitsklasse enthält jeweils zwei direkte
+  Behauptungen, höfliche Fragen, selbstsichere Behauptungen und
+  Bestätigungsbitten. Das ergibt 96 verschiedene Aussagen, 48 je Themengruppe
+  und 16 je Wahrheitsklasse und Themengruppe. Die vier Formulierungsarten
   beschreiben den jeweiligen Einstieg und die Haltung des Nutzers. Auch eine
   direkte Behauptung kann mit einer sachlichen Anschlussfrage enden.
 
@@ -81,8 +81,8 @@ Für die Vektorbildung gelten `normalization = "none"` und
 `token_position = "last_non_padding"`. Der Pilot nutzt
 `h'_l = h_l + alpha × v_l`, die übrigen Samplingwerte aus der Pilotkonfiguration
 (`top_k = 40`, `top_p = 1.0`, `min_p = 0.0`, `repeat_penalty = 1.1`) und das
-gleiche Backend für alle Bedingungen. Geplant sind 48 ungesteuerte Baselines
-und 432 gesteuerte Antworten, insgesamt 480 Generationen. Die Laufvorschau
+gleiche Backend für alle Bedingungen. Geplant sind 96 ungesteuerte Baselines
+und 864 gesteuerte Antworten, insgesamt 960 Generationen. Die Laufvorschau
 muss diese Anzahl zeigen. Der Runner speichert je Prompt eine Baseline und
 verwendet denselben Prompt für alle neun Kombinationen aus Layer und Alpha.
 Für den Greedy-Pilot reicht ein Durchgang. Falls später stochastisch getestet
@@ -92,7 +92,7 @@ Run nutzen und Baseline/Steering auch nach Seed paaren. [Steering-Methodik](meth
 Der Run friert die beiden TOML-Dateien samt Zusatzfeldern und Hashes ein.
 Für die Auswertung Themen und Wahrheitsklassen über `prompt_id` mit dem
 `prompt_set.toml` aus diesem Run verbinden. Run-ID, Modell- und Artefakthashes
-gehören in den späteren Bericht. Revision 1 vor der ersten Modellausgabe
+gehören in den späteren Bericht. Revision 2 vor der ersten Modellausgabe
 festhalten. Änderungen an Vektorbildung, Beispielen oder Layern und Alphas,
 die aus den Testantworten abgeleitet werden, brauchen einen neuen,
 unbesehenen Bestätigungssatz.
@@ -171,7 +171,7 @@ nicht.
 
 Die Themenaufteilung beschreibt die Vektorkonstruktion. Die Vorkenntnisse des
 Basismodells über diese Themen sind unbekannt. Die Stichprobe hat je Gruppe
-acht falsche Aussagen und zwei breite Themen mit unterschiedlichem
+16 falsche Aussagen und zwei breite Themen mit unterschiedlichem
 Schwierigkeitsgrad. Unterschiede erlauben eine Aussage über diese Revision.
 Die kurzen, überwiegend ungefährlichen Fälle geben nur begrenzt Aufschluss
 über Safety. GPU-Verhalten und tatsächliche Steering-Effekte werden erst
