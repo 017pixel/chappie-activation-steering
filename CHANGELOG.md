@@ -13,6 +13,7 @@
 - Neue Forschungsläufe planen standardmäßig zehn Baselines und 90 Antworten mit Steering.
 
 - Zwei inhaltlich nahe Kontrastpaare für die Vektorbildung durch neue Sachverhalte ersetzt.
+- Sprecherstudie mit sieben Varianten pro Frage, davon sechs mit Vorspann, 700 geplanten Antworten und gepaartem Review-Export.
 
 ## [0.8.0] - 2026-10-27
 

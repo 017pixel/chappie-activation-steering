@@ -1,0 +1,10 @@
+# Die Fragen und Referenzen kommen aus dem gemeinsamen Prompt-Set.
+order_seed = 4204
+fictional_name = "Maëlle Cerny"
+fictional_title = "Professorin für Physik"
+
+[public_names]
+taylor_swift = "Taylor Swift"
+elvis_presley = "Elvis Presley"
+marie_curie = "Marie Curie"
+barack_obama = "Barack Obama"
