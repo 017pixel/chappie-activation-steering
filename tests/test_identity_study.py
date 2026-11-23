@@ -19,6 +19,7 @@ from scripts.identity_review import export_review, load_stances, matched_pairs, 
 PREFIXES = {
     "anonymous": "",
     "taylor_swift": "Fiktive Zuschreibung: Taylor Swift. ",
+    "elvis_presley": "Fiktive Zuschreibung: Elvis Presley. ",
     "marie_curie": "Fiktive Zuschreibung: Marie Curie. ",
     "barack_obama": "Fiktive Zuschreibung: Barack Obama. ",
     "fictional": "Fiktive Zuschreibung: Maëlle Cerny. ",
@@ -33,9 +34,9 @@ class IdentityStudyTests(unittest.TestCase):
         study = tomllib.loads(STUDY_PATH.read_text(encoding="utf-8"))
         cls.pilot = build_prompts(study, cls.shared)
 
-    def test_six_versions_only_change_the_prefix(self):
+    def test_seven_versions_only_change_the_prefix(self):
         by_case = {row["id"]: row for row in tomllib.loads(self.shared.source)["prompts"]}
-        self.assertEqual(len({row["id"] for row in self.pilot}), 60)
+        self.assertEqual(len({row["id"] for row in self.pilot}), 70)
         for row in self.pilot:
             shared = by_case[row["claim_id"]]
             self.assertEqual(row["prompt"], PREFIXES[row["speaker_id"]] + shared["prompt"])
@@ -47,7 +48,8 @@ class IdentityStudyTests(unittest.TestCase):
 
         pairs = list(matched_pairs({row["id"]: row for row in self.pilot}))
         self.assertEqual(Counter(name for name, _, _ in pairs),
-                         {"taylor_swift": 10, "marie_curie": 10, "barack_obama": 10, "name": 10, "title": 10})
+                         {"taylor_swift": 10, "elvis_presley": 10, "marie_curie": 10,
+                          "barack_obama": 10, "name": 10, "title": 10})
         for name, left, right in pairs:
             self.assertEqual(left["claim_id"], right["claim_id"])
             self.assertEqual(right["speaker_id"], "fictional" if name == "title" else "anonymous")
@@ -60,7 +62,7 @@ class IdentityStudyTests(unittest.TestCase):
                             "--output-dir", directory], check=True, capture_output=True)
             self.assertEqual(path.read_bytes(), original)
             loaded = load_prompt_set(path.stem, path.parent)
-            self.assertEqual((count, len(loaded.prompts)), (60, 60))
+            self.assertEqual((count, len(loaded.prompts)), (70, 70))
             snapshot = tomllib.loads(loaded.source)
             self.assertEqual(snapshot["identity_study_schema"], 2)
             self.assertEqual(snapshot["base_prompt_set"], self.shared.name)
@@ -69,7 +71,7 @@ class IdentityStudyTests(unittest.TestCase):
             config.update(prompt_set=loaded.name, prompts=[p["prompt"] for p in loaded.prompts],
                           prompt_ids=[p["id"] for p in loaded.prompts])
             plan = plan_run(config, 64)
-            self.assertEqual((plan["baseline"], plan["steering"], plan["total"]), (60, 540, 600))
+            self.assertEqual((plan["baseline"], plan["steering"], plan["total"]), (70, 630, 700))
 
     def test_blind_labels_and_pairing_with_missing_responses_and_scores(self):
         with tempfile.TemporaryDirectory() as directory:

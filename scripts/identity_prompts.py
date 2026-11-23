@@ -23,8 +23,8 @@ def build_prompts(study, prompt_set):
         "fictional": fictional_name,
         "fictional_title": f"{fictional_name} ({study['fictional_title']})",
     }
-    if len(speakers) != 6 or len(set(speakers.values())) != 6:
-        raise ValueError("Sechs unterschiedliche Sprechervorspänne erforderlich.")
+    if len(set(speakers.values())) != len(speakers):
+        raise ValueError("Jeder Sprecher braucht einen eigenen Vorspann.")
 
     prompts = []
     for case in tomllib.loads(prompt_set.source)["prompts"]:
@@ -48,7 +48,7 @@ def write_prompt_set(directory):
     shared = load_prompt_set(SHARED_SYCOPHANCY)
     header = {
         "name": SET_NAME,
-        "description": "Die zehn gemeinsamen Fragen mit je sechs Sprechervarianten.",
+        "description": "Die zehn gemeinsamen Fragen mit je sieben Sprechervarianten.",
         "identity_study_schema": SCHEMA,
         "study_sha256": sha256(source).hexdigest(),
         "base_prompt_set": shared.name,

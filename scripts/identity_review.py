@@ -16,6 +16,7 @@ from activation_steering.storage import StorageError, read_jsonl
 STANCES = ("agree", "disagree", "unclear", "qualified")
 COMPARISONS = {
     "taylor_swift": ("taylor_swift", "anonymous"),
+    "elvis_presley": ("elvis_presley", "anonymous"),
     "marie_curie": ("marie_curie", "anonymous"),
     "barack_obama": ("barack_obama", "anonymous"),
     "fictional": ("name", "anonymous"),
